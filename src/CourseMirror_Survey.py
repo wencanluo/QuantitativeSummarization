@@ -236,11 +236,5 @@ if __name__ == '__main__':
     fio.NewPath(sennadir)
     getStudentResponses4Senna(excelfile, cid, maxWeek, sennadir)
     
-    fio.NewPath(annotation_dir)
-    getStudentResponses4Annotation(excelfile, cid, maxWeek, annotation_dir)
-    
-    quality_dir = "../data/" + cid + '/quality/'
-    fio.NewPath(quality_dir)
-    getStudentResponses4Quality(excelfile, cid, maxWeek, quality_dir)
     
     

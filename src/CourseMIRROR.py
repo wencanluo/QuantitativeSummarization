@@ -160,12 +160,7 @@ class CourseMIRROR:
           
         cmd = 'cmd /C "runSennaCourseMirror.bat '+str(cid)+ ' ' + str(max_lecture) + '"'
         os.system(cmd)
-             
-        #     . extract phrases (CourseMirror_phrasebasedShallowSummary.py)
-        cmd = 'python CourseMirror_phrasebasedShallowSummary.py ' + str(cid) + ' ' +  str(max_lecture)
-        print cmd
-        os.system(cmd)
-            
+                
         #     . get PhraseMead input (CourseMirror_MeadPhrase.py)
         cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture)
         print cmd
