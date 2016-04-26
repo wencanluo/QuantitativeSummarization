@@ -17,12 +17,14 @@ TypeMapReverse = {"q1_summaries":'Point of Interest', "q2_summaries":'Muddiest P
 from parse_rest.user import User
 
 class CourseMIRROR:
-    def __init__(self, app_id, api_key, master_key, config=None):
+    def __init__(self, app_id, api_key, master_key, config=None, system=None, method=None):
         register(app_id, api_key)
         
         self.old_N = 0
         self.config = config
         self.email_from = 'wencanluo.cn@gmail.com'
+        self.system = system
+        self.method = method
     
     def get_data_top(self, table, topK, cid=None, order_by = None):
         data = {'results':[]}
@@ -140,63 +142,55 @@ class CourseMIRROR:
         jsonfile = '../data/CourseMIRROR/reflections.json' 
         with open(jsonfile, 'w') as outfile:
             json.dump(reflections, outfile, encoding='utf-8', indent=2)
-        
+         
         #get lectures
         lectures = self.get_lectures(cid)
         jsonfile = '../data/CourseMIRROR/lectures.json' 
         with open(jsonfile, 'w') as outfile:
             json.dump(lectures, outfile, encoding='utf-8', indent=2)
-        
+         
         self.N = len(reflections['results'])
         print "total number of reflections:", self.N
-         
+          
         if self.N == self.old_N: #no need to summary
             return
-         
+          
         self.old_N = self.N
-        
+         
         #run senna
         os.system('python CourseMirror_Survey.py ' + str(cid) + ' ' +  str(max_lecture))
-          
+           
         cmd = 'cmd /C "runSennaCourseMirror.bat '+str(cid)+ ' ' + str(max_lecture) + '"'
         os.system(cmd)
-                
+          
+        cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
+        os.system(cmd)
+                  
         #     . get PhraseMead input (CourseMirror_MeadPhrase.py)
-        cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture)
+        cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
         print cmd
         os.system(cmd)
-        
+          
         olddir = os.path.dirname(os.path.realpath(__file__))
-        
+         
         #     . get PhraseMead output
         meaddir = '/cygdrive/e/project/Fall2014/summarization/mead/bin/'
-        cmd = './get_mead_summary_phrase_coursemirror.sh ' + str(cid) + ' ' +  str(max_lecture)
+        cmd = './get_mead_summary_phrase_qps.sh ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system)
         os.chdir(meaddir)
         retcode = subprocess.call([cmd], shell=True)
         print retcode
-        #subprocess.call("exit 1", shell=True)
-        
+        subprocess.call("exit 1", shell=True)
+         
         os.chdir(olddir)
         #     . get LSA results (CourseMirrorphrase2phraseSimilarity.java)
-        cmd = 'cmd /C "runLSA.bat '+str(cid)+ ' ' + str(max_lecture) + '"'
+        cmd = 'cmd /C "runLSA.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
         os.system(cmd)
          
         #     . get ClusterARank (CourseMirror_phraseClusteringbasedShallowSummaryKmedoid-New-Malformed-LexRank.py)
-        cmd = "python CourseMirror_ClusterARank.py " + str(cid) + ' ' +  str(max_lecture)
+        cmd = "python CourseMirror_ClusterARank.py " + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
         print cmd
         os.system(cmd)
         
-    def test(self):
-        #self.get_max_lecture_num('IE256')
-        #self.get_data(Reflection, 'NAACL2015')
-        print self.get_questions('NAACL2015')
-#         try:
-#             summary = Summarization.Query.get(cid='PHYSs0175', lecture_number= 41, method='ClusterARank')
-#         except parse_rest.query.QueryResourceDoesNotExist:
-#             pass
-        #print summary.cid, summary.q1_summaries
-        
-                
 if __name__ == '__main__':
     
     import ConfigParser
@@ -208,10 +202,16 @@ if __name__ == '__main__':
     config.read('../config/config_'+course+'.cfg')
     
     cid = config.get('course', 'cid')
+    
+    system = 'phrasesummarization'
+    method = 'syntax'
+    
     course_mirror_server = CourseMIRROR(config.get('Parse', 'PARSE_APP_ID'), 
                                         config.get('Parse', 'PARSE_REST_API_KEY'), 
                                         config.get('Parse', 'PARSE_MASTER_KEY'),
-                                        config
+                                        config,
+                                        system,
+                                        method,
                                         )
     
     course_mirror_server.run(cid, summarylastlecture=config.getint('course', 'summarylastlecture'))

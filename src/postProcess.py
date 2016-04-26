@@ -5,6 +5,18 @@ import numpy
 from collections import defaultdict
 import json
                     
+def getTopRankPhraseNoSource(NPs, clusterids, cid, lexdict):
+    #get cluster NP, and scores
+    dict = {}
+    
+    for NP, id in zip(NPs, clusterids):
+        if int(id) == cid:
+            dict[NP] = lexdict[NP.lower()]
+            
+    keys = sorted(dict, key=dict.get, reverse =True)
+    
+    return keys[0]
+                    
 def getTopRankPhrase(NPs, clusterids, cid, lexdict, sources):
     #get cluster NP, and scores
     dict = {}
@@ -37,6 +49,61 @@ def RankCluster2(NPs, lexdict, clusterids, sources):
     
     keys = sorted(sizedict, key=sizedict.get, reverse =True)
     
+    return keys
+
+def RankClusterNoSource(NPs, lexdict, clusterids):
+    sizedict = defaultdict(int)
+    for id in clusterids:
+        sizedict[id] += 1
+
+    #get lex scores for clusters
+    highestlexdict = {}
+    for key in sizedict:
+        phrase = getTopRankPhraseNoSource(NPs, clusterids, int(key), lexdict)
+        highestlexdict[key] = lexdict[phrase.lower()]
+    
+    print "highestlexdict" 
+    #fio.PrintDict(highestlexdict)
+        
+    
+    print "sizedict"        
+    #fio.PrintDict(sizedict)
+    
+    tkeys = sorted(sizedict, key=sizedict.get, reverse =True)
+    
+    #break the tires
+    keys = []
+    N = len(tkeys)
+    i = 0
+    while i < len(tkeys):
+        tkey = []
+        j = i
+        while (j < N):
+            if sizedict[tkeys[j]] == sizedict[tkeys[i]]:
+                tkey.append(tkeys[j])
+                j = j + 1
+            else:
+                break
+        if j==i:
+            i = i + 1
+        else:
+            i = j
+        
+        print i
+        
+        if len(tkey) == 1:
+            keys = keys + tkey
+        else:
+            #sort them
+            tdict = {}
+            for key in tkey:
+                tdict[key] = highestlexdict[key]
+            tkey = sorted(tdict, key=tdict.get, reverse =True)
+            keys = keys + tkey
+        
+    assert(len(keys) == len(tkeys))
+    
+    print keys
     return keys
 
 def RankCluster(NPs, lexdict, clusterids, sources):

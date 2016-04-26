@@ -100,6 +100,55 @@ def Similarity2Distance(similarity):
                     exit()
     return distance
 
+def getPhraseClusterPhrase(phrasefile, weightfile, output, ratio=None, method=None):
+    NPCandidates = fio.ReadFile(phrasefile)
+    if len(NPCandidates) == 0: return
+    
+    NPs, matrix = fio.ReadMatrix(weightfile, hasHead = True)
+    
+    #change the similarity to distance
+    matrix = Similarity2Distance(matrix)
+
+    index = {}
+    for i, NP in enumerate(NPs):
+        index[NP] = i
+    
+    newMatrix = []
+    
+    for NP1 in NPCandidates:
+        assert(NP1 in index)
+        i = index[NP1]
+        
+        row = []
+        for NP2 in NPCandidates:
+            if NP2 not in index:
+                print NP2, weightfile, method
+            j = index[NP2]
+            row.append(matrix[i][j])
+            
+        newMatrix.append(row)
+    
+    V = len(NPCandidates)
+    if ratio == "sqrt":
+        K = int(math.sqrt(V))
+    elif float(ratio) > 1:
+        K = int(ratio)
+    else:
+        K = int(ratio*V)
+    
+    if K < 1: K=1
+    
+    clusterid = ClusterWrapper.KMedoidCluster(newMatrix, K)
+    
+    body = []   
+    for NP, id in zip(NPCandidates, clusterid):
+        row = []
+        row.append(NP)
+        row.append(id)
+        body.append(row)    
+    
+    fio.WriteMatrix(output, body, header = None)
+    
 def getPhraseClusterAll(sennafile, weightfile, output, ratio=None, MalformedFlilter=False, source=None, np=None):
     NPCandidates, sources = getNPs(sennafile, MalformedFlilter, source=source, np=np)
     
