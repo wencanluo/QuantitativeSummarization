@@ -3,6 +3,7 @@ import os
 import fio
 import NLTKWrapper
 import numpy
+import sys
 
 def get_phrase_reference_summary_phrase(outputs = None):
     
@@ -44,7 +45,11 @@ def get_phrase_reference_summary_phrase(outputs = None):
         print numpy.median(counts)
         
 if __name__ == '__main__':
-    mead_datadir = "../data/IE256/phrasesummarization/"
+    course = sys.argv[1]
+    system = sys.argv[2]
+    
+    mead_datadir = "../data/%s/%s/"%(course,system)
+    
     outputs =  [
                 #mead_datadir + 'Mead',
                 #mead_datadir + 'PhraseMead',

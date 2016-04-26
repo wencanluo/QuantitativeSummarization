@@ -3,32 +3,25 @@ import fio
 import numpy
 import json
 import os
-from TAC_ILP_baseline import iter_folder
 from numpy import average
 import codecs
 
-tmpdir = "../../data/tmp/"
+tmpdir = "../data/tmp/"
 RougeHeader = ['R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'RSU4-P', 'RSU4-F',]
 RougeHeaderSplit = ['R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'RSU4-P', 'RSU4-F','R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'RSU4-P', 'RSU4-F','R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'RSU4-P', 'RSU4-F',]
 RougeNames = ['ROUGE-1','ROUGE-2', 'ROUGE-SUX']
 
-def getRouge(rouge_dict, ilpdir, L, outputdir, Lambda):
-    sheets = range(0,26)
+def getRouge(datadir, maxWeek, output):
+    sheets = range(0, maxWeek)
     
     body = []
     
     for sheet in sheets:
         week = sheet + 1
-        dir = ilpdir + str(week) + '/'
+        dir = datadir + str(week) + '/'
         
         for type in ['q1', 'q2']:
-            prefix = dir + type + "." + 'sentence'
-            
-            if Lambda == None:
-                summary_file = prefix + '.L' + str(L) + ".summary"
-            else:
-                summary_file = prefix + '.L' + str(L) + '.'+str(Lambda) + ".summary"
-                
+            summary_file = dir + type + "." + 'summary'
             print summary_file
             
             if not fio.IsExist(summary_file): 
@@ -36,7 +29,7 @@ def getRouge(rouge_dict, ilpdir, L, outputdir, Lambda):
                 continue
             
             Cache = {}
-            cachefile = os.path.join(ilpdir, str(week), 'cache.json')
+            cachefile = os.path.join(datadir, str(week), 'cache.json')
             print cachefile
             if fio.IsExist(cachefile):
                 with open(cachefile, 'r') as fin:
@@ -45,7 +38,7 @@ def getRouge(rouge_dict, ilpdir, L, outputdir, Lambda):
             #read TA's summmary
             refs = []
             for i in range(2):
-                reffile = os.path.join(ilpdir, str(week), type + '.ref.%d' %i)
+                reffile = os.path.join(datadir, str(week), type + '.ref.%d' %i)
                 if not fio.IsExist(reffile):
                     print reffile
                     continue
@@ -71,7 +64,6 @@ def getRouge(rouge_dict, ilpdir, L, outputdir, Lambda):
                 scores = OracleExperiment.getRouge_IE256(refs, TmpSum)
                 Cache[cacheKey] = scores
             
-            rouge_dict[str(week)+'_'+type] = scores
             row = [week]
             row = row + scores
             
@@ -90,39 +82,18 @@ def getRouge(rouge_dict, ilpdir, L, outputdir, Lambda):
         row.append(numpy.mean(scores))
     body.append(row)
     
-    fio.WriteMatrix(os.path.join(outputdir, "rouge.sentence." + 'L' + str(L) + ".txt"), body, header)
+    fio.WriteMatrix(output, body, header)
     
 if __name__ == '__main__':
     import sys
     
-    ilpdir = sys.argv[1]
-    m_lambda = sys.argv[2]
-    threshold = sys.argv[3]
+    course = sys.argv[1]
+    maxWeek = int(sys.argv[2])
+    system = sys.argv[3]
     
-    #ilpdir = '../../data/IE256/ILP_Sentence_MC/'
-    #m_lambda = 'org'
-    #threshold = '1.0'
+    datadir = "../data/"+course+"/"+system+ '/ClusterARank/'
+    output = '../data/%s/%s/rouge.txt' % (course, system)
     
-    from config import ConfigFile
-    config = ConfigFile(config_file_name='config_IE256.txt')
-                    
-    rouge_dict = {}
-    
-    for L in [config.get_length_limit()]:
-    #for L in [39]:
-        #for threshold in [0.0]:
-        #for m_lambda in ['2']:
-        
-        if m_lambda == 'None':
-            Lambda = None
-        else:
-            Lambda =  str(m_lambda)+ '.' + str(threshold)
-        
-        getRouge(rouge_dict, ilpdir, L, ilpdir, Lambda)
-        
-        if m_lambda == 'None':
-            fio.SaveDict2Json(rouge_dict, ilpdir + 'rouge.L'+str(L)+'.json')
-        else:
-            fio.SaveDict2Json(rouge_dict, ilpdir + 'rouge.L'+str(L)+'.'+Lambda+'.json')
+    getRouge(datadir, maxWeek, output)
                      
     print "done"

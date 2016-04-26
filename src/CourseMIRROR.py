@@ -132,7 +132,6 @@ class CourseMIRROR:
         
         return ""
 
-            
     def run(self, cid, summarylastlecture=False):
         max_lecture = self.get_max_lecture_num(cid)
         print "max_lecture", max_lecture
@@ -188,6 +187,14 @@ class CourseMIRROR:
          
         #     . get ClusterARank (CourseMirror_phraseClusteringbasedShallowSummaryKmedoid-New-Malformed-LexRank.py)
         cmd = "python CourseMirror_ClusterARank.py " + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
+        print cmd
+        os.system(cmd)
+        
+        cmd = "python get_summary.py %s %s" % (cid, self.system)
+        print cmd
+        os.system(cmd)
+        
+        cmd = "python get_Rouge.py %s %d %s" % (cid, max_lecture, self.system)
         print cmd
         os.system(cmd)
         
