@@ -136,42 +136,42 @@ class CourseMIRROR:
         max_lecture = self.get_max_lecture_num(cid)
         print "max_lecture", max_lecture
         
-        #get reflections
-        reflections = self.get_reflections(cid)
-        jsonfile = '../data/CourseMIRROR/reflections.json' 
-        with open(jsonfile, 'w') as outfile:
-            json.dump(reflections, outfile, encoding='utf-8', indent=2)
-         
-        #get lectures
-        lectures = self.get_lectures(cid)
-        jsonfile = '../data/CourseMIRROR/lectures.json' 
-        with open(jsonfile, 'w') as outfile:
-            json.dump(lectures, outfile, encoding='utf-8', indent=2)
-         
-        self.N = len(reflections['results'])
-        print "total number of reflections:", self.N
-          
-        if self.N == self.old_N: #no need to summary
-            return
-          
-        self.old_N = self.N
-         
-        #run senna
-        os.system('python CourseMirror_Survey.py ' + str(cid) + ' ' +  str(max_lecture))
-           
-        cmd = 'cmd /C "runSennaCourseMirror.bat '+str(cid)+ ' ' + str(max_lecture) + '"'
-        os.system(cmd)
-          
+#         #get reflections
+#         reflections = self.get_reflections(cid)
+#         jsonfile = '../data/CourseMIRROR/reflections.json' 
+#         with open(jsonfile, 'w') as outfile:
+#             json.dump(reflections, outfile, encoding='utf-8', indent=2)
+#           
+#         #get lectures
+#         lectures = self.get_lectures(cid)
+#         jsonfile = '../data/CourseMIRROR/lectures.json' 
+#         with open(jsonfile, 'w') as outfile:
+#             json.dump(lectures, outfile, encoding='utf-8', indent=2)
+#           
+#         self.N = len(reflections['results'])
+#         print "total number of reflections:", self.N
+#            
+#         if self.N == self.old_N: #no need to summary
+#             return
+#            
+#         self.old_N = self.N
+#           
+#         #run senna
+#         os.system('python CourseMirror_Survey.py ' + str(cid) + ' ' +  str(max_lecture))
+#             
+#         cmd = 'cmd /C "runSennaCourseMirror.bat '+str(cid)+ ' ' + str(max_lecture) + '"'
+#         os.system(cmd)
+#            
         cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
         os.system(cmd)
-                  
+                    
         #     . get PhraseMead input (CourseMirror_MeadPhrase.py)
         cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
         print cmd
         os.system(cmd)
-          
+             
         olddir = os.path.dirname(os.path.realpath(__file__))
-         
+             
         #     . get PhraseMead output
         meaddir = '/cygdrive/e/project/Fall2014/summarization/mead/bin/'
         cmd = './get_mead_summary_phrase_qps.sh ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system)
@@ -179,21 +179,21 @@ class CourseMIRROR:
         retcode = subprocess.call([cmd], shell=True)
         print retcode
         subprocess.call("exit 1", shell=True)
-         
+             
         os.chdir(olddir)
         #     . get LSA results (CourseMirrorphrase2phraseSimilarity.java)
         cmd = 'cmd /C "runLSA.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
         os.system(cmd)
-         
+             
         #     . get ClusterARank (CourseMirror_phraseClusteringbasedShallowSummaryKmedoid-New-Malformed-LexRank.py)
         cmd = "python CourseMirror_ClusterARank.py " + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
         print cmd
         os.system(cmd)
-        
+           
         cmd = "python get_summary.py %s %s" % (cid, self.system)
         print cmd
         os.system(cmd)
-        
+           
         cmd = "python get_Rouge.py %s %d %s" % (cid, max_lecture, self.system)
         print cmd
         os.system(cmd)
@@ -210,8 +210,17 @@ if __name__ == '__main__':
     
     cid = config.get('course', 'cid')
     
-    system = 'phrasesummarization'
-    method = 'syntax'
+    #system = 'phrasesummarization'
+    #method = 'syntax'
+    
+    #system = 'oracle_annotator_2'
+    #method = 'annotator2'
+    
+#     system = 'oracle_union'
+#     method = 'union'
+#     
+    system = 'oracle_intersect'
+    method = 'intersect'
     
     course_mirror_server = CourseMIRROR(config.get('Parse', 'PARSE_APP_ID'), 
                                         config.get('Parse', 'PARSE_REST_API_KEY'), 

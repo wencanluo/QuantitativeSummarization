@@ -11,7 +11,7 @@ def get_phrase_reference_summary_phrase(outputs = None):
         fio.NewPath(output)
         
         counts = []
-        for doc, lec, annotator in annotation.generate_all_files(annotation.datadir + 'json/', '.json', anotators = ['Youngmin', 'Trevor']):
+        for doc, lec, annotator in annotation.generate_all_files(annotation.datadir + 'json/', '.json', anotators = ['Youngmin', 'Trevor'], lectures=annotation.Lectures):
             print doc
             
             task = annotation.Task()

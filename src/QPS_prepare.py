@@ -7,10 +7,13 @@ import random
 import NLTKWrapper
 import SennaParser
 import porter
+import annotation
 
 import CourseMirror_Survey
 
 from CourseMirror_Survey import stopwords, punctuations
+
+from AlignPhraseAnnotation import AlignPhraseAnnotation
 
 def isMalformed(phrase):
     N = len(phrase.split())
@@ -66,9 +69,96 @@ def extractPhrase(excelfile, folder, sennadatadir, method):
             
             fio.SaveList(phrases, filename)
 
-def extractPhraseFromAnnotation():
-    pass
+def extractPhraseFromAnnotation(phrasedir, annotator):
+    for doc, lec, annotator in annotation.generate_all_files(annotation.datadir + 'json/', '.json', anotators = annotator, lectures=annotation.Lectures):
+        print doc
+        
+        #load task
+        task = annotation.Task()
+        task.loadjson(doc)
+        
+        path = phrasedir + str(lec)+ '/'
+        fio.NewPath(path)
+        
+        for prompt in ['q1', 'q2']:
+            filename = path + prompt + '.' + method + '.key'
+            
+            extracted_phrases = []
+            phrase_annotation = task.get_phrase_annotation(prompt)
+            for rank in sorted(phrase_annotation):
+                phrases = phrase_annotation[rank]
+                for phrasedict in phrases:
+                    phrase = phrasedict['phrase'].lower()
+                    extracted_phrases.append(phrase)
+                    
+            fio.SaveList(extracted_phrases, filename)
 
+def extractPhraseFromAnnotationUnion(phrasedir, annotators):
+    for docs in annotation.generate_all_files_by_annotators(annotation.datadir + 'json/', '.json', anotators = annotators, lectures=annotation.Lectures):
+        
+        doc0, lec0, annotator0 = docs[0]
+        doc1, lec1, annotator1 = docs[1]
+        
+        assert(lec0 == lec1)
+        lec = lec0
+        
+        #load tasks
+        task0 = annotation.Task()
+        task0.loadjson(doc0)
+        
+        task1 = annotation.Task()
+        task1.loadjson(doc1)
+        
+        path = phrasedir + str(lec)+ '/'
+        fio.NewPath(path)
+        
+        for prompt in ['q1', 'q2']:
+            filename = path + prompt + '.' + method + '.key'
+            print filename
+            
+            extracted_phrases = []
+            phrase_annotation0 = task0.get_phrase_annotation(prompt)
+            phrase_annotation1 = task1.get_phrase_annotation(prompt)
+            
+            aligner = AlignPhraseAnnotation(task0, task1, prompt)
+            aligner.align()
+            extracted_phrases = aligner.get_union()
+                       
+            fio.SaveList(extracted_phrases, filename)
+
+def extractPhraseFromAnnotationIntersect(phrasedir, annotators):
+    for docs in annotation.generate_all_files_by_annotators(annotation.datadir + 'json/', '.json', anotators = annotators, lectures=annotation.Lectures):
+        
+        doc0, lec0, annotator0 = docs[0]
+        doc1, lec1, annotator1 = docs[1]
+        
+        assert(lec0 == lec1)
+        lec = lec0
+        
+        #load tasks
+        task0 = annotation.Task()
+        task0.loadjson(doc0)
+        
+        task1 = annotation.Task()
+        task1.loadjson(doc1)
+        
+        path = phrasedir + str(lec)+ '/'
+        fio.NewPath(path)
+        
+        for prompt in ['q1', 'q2']:
+            filename = path + prompt + '.' + method + '.key'
+            print filename
+            
+            extracted_phrases = []
+            phrase_annotation0 = task0.get_phrase_annotation(prompt)
+            phrase_annotation1 = task1.get_phrase_annotation(prompt)
+            
+            aligner = AlignPhraseAnnotation(task0, task1, prompt)
+            aligner.align()
+            extracted_phrases = aligner.get_intersect()
+                       
+            fio.SaveList(extracted_phrases, filename)
+                                        
 if __name__ == '__main__':
     course = sys.argv[1]
     maxWeek = int(sys.argv[2])
@@ -81,7 +171,16 @@ if __name__ == '__main__':
     phrasedir = "../data/"+course+"/"+system+"/phrase/"
     
     fio.NewPath(phrasedir)
-    extractPhrase(excelfile, phrasedir, sennadir, method=method)
-       
+    
+    if method == 'syntax':
+        extractPhrase(excelfile, phrasedir, sennadir, method=method)
+    elif method == 'annotator1':
+        extractPhraseFromAnnotation(phrasedir, annotation.anotators[:1])
+    elif method == 'annotator2':
+        extractPhraseFromAnnotation(phrasedir, annotation.anotators[-1:])
+    elif method == 'union':
+        extractPhraseFromAnnotationUnion(phrasedir, annotation.anotators)
+    elif method == 'intersect':
+        extractPhraseFromAnnotationIntersect(phrasedir, annotation.anotators)
     print "done"
     

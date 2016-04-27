@@ -18,6 +18,8 @@ def WriteDocsent(excelfile, folder, phrasedir, np=None):
             phrasefile = os.path.join(phrasedir, str(week), type + '.' + method + '.key')
             if not fio.IsExist(phrasefile): continue
             
+            print phrasefile
+            
             DID = str(week) + '_' + type
             
             path = folder + str(week)+ '/'
@@ -33,7 +35,7 @@ def WriteDocsent(excelfile, folder, phrasedir, np=None):
             root.tail = '\n'
             tree = ET.ElementTree(root)
             
-            phrases = fio.ReadFile(phrasefile)
+            phrases = fio.ReadFileUTF8(phrasefile)
             
             sno_id = 1
             for par, phrase in enumerate(phrases):

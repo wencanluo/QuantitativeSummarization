@@ -33,7 +33,17 @@ def generate_all_files(datadir, extension, anotators=anotators, lectures = AllLe
             assert(fio.IsExist(filename))
             
             yield filename, lec, annotator
+
+def generate_all_files_by_annotators(datadir, extension, anotators=anotators, lectures = AllLectures):
+    for lec in lectures:
+        docs = []
+        for annotator in anotators:
+            filename = datadir + annotator + '_IE256_Lecture_' + str(lec) + '_Completed' + extension
+            assert(fio.IsExist(filename))
             
+            docs.append( (filename, lec, annotator) )
+        yield docs
+                        
 class Task:
     def __init__(self):
         pass
@@ -372,6 +382,12 @@ class Task:
             
                 raw_response.append(dict)
             self.raw_response.append(raw_response)
+    
+    def get_raw_response(self, prompt):
+        return self.raw_response[prompt_dict[prompt]]
+    
+    def get_response(self, prompt):
+        return self.responses[prompt_dict[prompt]]
     
     def get_phrase_summary_student_coverage(self, prompt):
         phrases = self.get_phrase_summary(prompt)

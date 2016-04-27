@@ -116,13 +116,16 @@ def getPhraseClusterPhrase(phrasefile, weightfile, output, ratio=None, method=No
     newMatrix = []
     
     for NP1 in NPCandidates:
-        assert(NP1 in index)
+        if NP1 not in index: continue
+        
         i = index[NP1]
         
         row = []
         for NP2 in NPCandidates:
             if NP2 not in index:
                 print NP2, weightfile, method
+                continue
+            
             j = index[NP2]
             row.append(matrix[i][j])
             
