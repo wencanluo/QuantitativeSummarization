@@ -389,6 +389,19 @@ class Task:
     def get_response(self, prompt):
         return self.responses[prompt_dict[prompt]]
     
+    def get_phrase_summary_textdict(self, prompt):
+        phrases = self.get_phrase_summary(prompt)
+        
+        pattern = re.compile('<(\d+)>')
+        dict = {}
+        for phrase in phrases:
+            rank, text, student_number = phrase
+            g = re.search(pattern, rank)
+            rank = g.group(1)
+            dict[rank] = text
+            
+        return dict    
+            
     def get_phrase_summary_student_coverage(self, prompt):
         phrases = self.get_phrase_summary(prompt)
         
@@ -396,12 +409,8 @@ class Task:
         dict = {}
         for phrase in phrases:
             rank, text, student_number = phrase
-            print phrase
-            
             g = re.search(pattern, rank)
-            
             rank = g.group(1)
-            
             dict[rank] = int(student_number)
             
         return dict
@@ -550,14 +559,17 @@ if __name__ == '__main__':
     
     task = Task()
     
-    task.loadjson("../data/json/Trevor_IE256_Lecture_14_Completed.json")
+    task.loadjson("../data/IE256/json/Trevor_IE256_Lecture_14_Completed.json")
     #print task.normalize("<probability of making mistake><2> is a <little><1> confusing")
     
     #print task.get_number_of_sentences()
     #print task.get_students()
     #print task.get_number_of_words()
-    print task.get_task_times()
-    print summarization_methods
-    print task.sort_by_name(task.get_task_times())
+    #print task.get_task_times()
+    
+    print task.get_phrase_summary_textdict('q1')
+    
+#     print summarization_methods
+#     print task.sort_by_name(task.get_task_times())
     
     

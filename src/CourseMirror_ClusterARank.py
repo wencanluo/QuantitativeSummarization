@@ -57,8 +57,9 @@ def getShallowSummary(excelfile, folder, clusterdir, K=30, method=None, similari
             
             cluster_output = clusterdir + str(week) +'/' + type + ".cluster.kmedoids." + str(ratio) + "." +similarity + '.' + method
             weightfile = clusterdir + str(week)+ '/' + type + '.' + method + '.' + similarity
-            #if not fio.IsExist(output):
-            phraseClusteringKmedoid.getPhraseClusterPhrase(phrasefile, weightfile, cluster_output, ratio, method=method)
+            
+            if not fio.IsExist(cluster_output):
+                phraseClusteringKmedoid.getPhraseClusterPhrase(phrasefile, weightfile, cluster_output, ratio, method=method)
             if not fio.IsExist(cluster_output): continue
             body = fio.ReadMatrix(cluster_output, False)
             
@@ -216,6 +217,7 @@ if __name__ == '__main__':
     maxWeek = int(sys.argv[2])
     system = sys.argv[3]
     method = sys.argv[4]
+    similarity = sys.argv[5] 
     
     excelfile = "../data/CourseMIRROR/reflections.json"
               
@@ -226,11 +228,10 @@ if __name__ == '__main__':
     GetLexRankScore(datadir, method, clusterdir)
           
     for ratio in ["sqrt"]:
-        for similarity in ['optimumComparerLSATasa']:
-            for lex in ['lexrankmax']:
-                datadir = "../data/"+course+"/"+system+ '/ClusterARank/'   
-                fio.DeleteFolder(datadir)
-                ShallowSummary(excelfile, datadir, clusterdir, K=5, method = method, similarity=similarity, ratio=ratio, lex=lex)
+        for lex in ['lexrankmax']:
+            datadir = "../data/"+course+"/"+system+ '/ClusterARank/'   
+            fio.DeleteFolder(datadir)
+            ShallowSummary(excelfile, datadir, clusterdir, K=5, method = method, similarity=similarity, ratio=ratio, lex=lex)
 
                 #PrintClusterRankSummary(datadir)
     

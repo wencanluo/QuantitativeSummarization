@@ -17,7 +17,7 @@ TypeMapReverse = {"q1_summaries":'Point of Interest', "q2_summaries":'Muddiest P
 from parse_rest.user import User
 
 class CourseMIRROR:
-    def __init__(self, app_id, api_key, master_key, config=None, system=None, method=None):
+    def __init__(self, app_id, api_key, master_key, config=None, system=None, method=None, similarity=None):
         register(app_id, api_key)
         
         self.old_N = 0
@@ -25,6 +25,7 @@ class CourseMIRROR:
         self.email_from = 'wencanluo.cn@gmail.com'
         self.system = system
         self.method = method
+        self.similarity = similarity
     
     def get_data_top(self, table, topK, cid=None, order_by = None):
         data = {'results':[]}
@@ -164,36 +165,36 @@ class CourseMIRROR:
 #            
         cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
         os.system(cmd)
-                    
-        #     . get PhraseMead input (CourseMirror_MeadPhrase.py)
-        cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
-        print cmd
-        os.system(cmd)
-             
-        olddir = os.path.dirname(os.path.realpath(__file__))
-             
-        #     . get PhraseMead output
-        meaddir = '/cygdrive/e/project/Fall2014/summarization/mead/bin/'
-        cmd = './get_mead_summary_phrase_qps.sh ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system)
-        os.chdir(meaddir)
-        retcode = subprocess.call([cmd], shell=True)
-        print retcode
-        subprocess.call("exit 1", shell=True)
-             
-        os.chdir(olddir)
-        #     . get LSA results (CourseMirrorphrase2phraseSimilarity.java)
-        cmd = 'cmd /C "runLSA.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
-        os.system(cmd)
-             
+#                     
+#         #     . get PhraseMead input (CourseMirror_MeadPhrase.py)
+#         cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
+#         print cmd
+#         os.system(cmd)
+#              
+#         olddir = os.path.dirname(os.path.realpath(__file__))
+#              
+#         #     . get PhraseMead output
+#         meaddir = '/cygdrive/e/project/Fall2014/summarization/mead/bin/'
+#         cmd = './get_mead_summary_phrase_qps.sh ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system)
+#         os.chdir(meaddir)
+#         retcode = subprocess.call([cmd], shell=True)
+#         print retcode
+#         subprocess.call("exit 1", shell=True)
+#              
+#         os.chdir(olddir)
+#         #     . get LSA results (CourseMirrorphrase2phraseSimilarity.java)
+#         cmd = 'cmd /C "runLSA.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
+#         os.system(cmd)
+#              
         #     . get ClusterARank (CourseMirror_phraseClusteringbasedShallowSummaryKmedoid-New-Malformed-LexRank.py)
-        cmd = "python CourseMirror_ClusterARank.py " + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
-        print cmd
-        os.system(cmd)
-           
-        cmd = "python get_summary.py %s %s" % (cid, self.system)
-        print cmd
-        os.system(cmd)
-           
+#         cmd = "python CourseMirror_ClusterARank.py %s %d %s %s %s" %(cid, max_lecture, self.system, self.method, self.similarity)
+#         print cmd
+#         os.system(cmd)
+#             
+#         cmd = "python get_summary.py %s %s" % (cid, self.system)
+#         print cmd
+#         os.system(cmd)
+#         
         cmd = "python get_Rouge.py %s %d %s" % (cid, max_lecture, self.system)
         print cmd
         os.system(cmd)
@@ -212,15 +213,21 @@ if __name__ == '__main__':
     
     #system = 'phrasesummarization'
     #method = 'syntax'
+
+#     system = 'oracle_annotator_1'
+#     method = 'annotator1'
+#     similarity = 'oracle'
+     
     
-    #system = 'oracle_annotator_2'
-    #method = 'annotator2'
+    system = 'oracle_annotator_2'
+    method = 'annotator2'
+    similarity = 'oracle'
     
 #     system = 'oracle_union'
 #     method = 'union'
 #     
-    system = 'oracle_intersect'
-    method = 'intersect'
+#     system = 'oracle_intersect'
+#     method = 'intersect'
     
     course_mirror_server = CourseMIRROR(config.get('Parse', 'PARSE_APP_ID'), 
                                         config.get('Parse', 'PARSE_REST_API_KEY'), 
@@ -228,6 +235,7 @@ if __name__ == '__main__':
                                         config,
                                         system,
                                         method,
+                                        similarity,
                                         )
     
     course_mirror_server.run(cid, summarylastlecture=config.getint('course', 'summarylastlecture'))
