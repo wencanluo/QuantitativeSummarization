@@ -129,7 +129,7 @@ def train_leave_one_lecture_out():
         
         crf = CRF(wapiti_home)
         crf.train(train_filename, pattern_file, model_file)
-        #crf.predict(test_filename, model_file, output_file)
+        crf.predict(test_filename, model_file, output_file)
         
     print lectures
     
