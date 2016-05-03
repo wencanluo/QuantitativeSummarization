@@ -26,7 +26,7 @@ class CRF(Classifier):
         @param model_file, the output model
         '''
         print "training..."
-        script = os.path.join(self.root, 'wapiti.exe')
+        script = os.path.join(self.root, 'wapiti')
         cmd = ' '.join([script, 'train', '-e 0.00002 -t 1 -T crf -a l-bfgs -1 0 -2 1 --histsz 5', '-p', pattern_file, training_set_file, model_file])
         print cmd
         os.system(cmd)
@@ -37,7 +37,7 @@ class CRF(Classifier):
         '''
         
         print "testing..."
-        script = os.path.join(self.root, 'wapiti.exe')
+        script = os.path.join(self.root, 'wapiti')
         cmd = ' '.join([script, 'label', '-p -m', model_file, test_file, output_file])
         print cmd
         os.system(cmd)

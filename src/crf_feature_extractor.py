@@ -1,7 +1,13 @@
 import json
 import file_util
 import codecs
-
+from nltk.tag import SennaTagger
+from nltk.tag import SennaChunkTagger
+ 
+import global_params
+from CourseMirror_Survey import stopwords
+from annotation import prompt_words
+                
 class CRF_Extractor:
     '''
     extract features for the CRF model
@@ -13,7 +19,18 @@ class CRF_Extractor:
         if subtype_flag = True, extract the features by sub parse_type
         if bioe_flag = True, use the BIOE tags
         '''
-        self.features = ['basic']
+        self.features = ['pos', 'chunk', 'promptword', 'stopword']
+        
+        if 'pos' in self.features:
+            self.pos_tagger = SennaTagger(global_params.sennadir)
+        
+        if 'chunk' in self.features:
+            self.chunk_tagger = SennaChunkTagger(global_params.sennadir)
+        
+        self.sentences = []
+        
+    def add_sentence(self, sentence):
+        self.sentences.add(sentence)
     
     def get_feature_names(self):
         return '_'.join(self.features)
@@ -90,7 +107,7 @@ class CRF_Extractor:
         for row in body:
             row.append('b')
     
-    def extract_crf_features(self, tokens, tags):
+    def extract_crf_features(self, tokens, tags, prompt):
         '''
         Extract the character features, each token a line
         return: [][], two dimentionary array, representing the feature data of the sentence
@@ -107,6 +124,32 @@ class CRF_Extractor:
             row.append(word)
             body.append(row)
         
+        if 'pos' in self.features:
+            pos_tags = self.pos_tagger.tag(tokens)
+            
+            for i, (_, p_tag) in enumerate(pos_tags):
+                body[i].append(p_tag)
+        
+        if 'chunk' in self.features:
+            chunk_tags = self.chunk_tagger.tag(tokens)
+            
+            for i, (_, c_tag) in enumerate(chunk_tags):
+                body[i].append(c_tag)
+        
+        if 'promptword':
+            for i, token in enumerate(tokens):
+                if token in prompt_words[prompt]:
+                    body[i].append('Y')
+                else:
+                    body[i].append('N')
+        
+        if 'stopword':
+            for i, token in enumerate(tokens):
+                if token in stopwords:
+                    body[i].append('Y')
+                else:
+                    body[i].append('N')
+                
         #last row:
         tags = [tag for tag in tags]
         

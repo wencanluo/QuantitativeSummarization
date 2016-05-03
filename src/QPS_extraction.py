@@ -21,8 +21,6 @@ from crf import CRF
 
 def extractPhraseFeatureFromAnnotation(extractiondir, annotators, id):
     
-    crf_feature_extractor = CRF_Extractor()
-    
     for docs in annotation.generate_all_files_by_annotators(annotation.datadir + 'json/', '.json', anotators = annotators, lectures=annotation.Lectures):
         
         doc0, lec0, annotator0 = docs[0]
@@ -54,6 +52,8 @@ def extractPhraseFeatureFromAnnotation(extractiondir, annotators, id):
             aligner = AlignPhraseAnnotation(task0, task1, prompt)
             aligner.align()
             
+            crf_feature_extractor = CRF_Extractor()
+            
             for d in aligner.responses:
                 tokens = [token.lower() for token in d['response']]
                 tags = d['tags'][id]
@@ -72,7 +72,8 @@ def extractPhraseFeatureFromAnnotation(extractiondir, annotators, id):
                 tokens = n_tokens
                 tags = n_tags
                 
-                body = crf_feature_extractor.extract_crf_features(tokens, tags)
+                crf_feature_extractor.add_sentence()
+                body = crf_feature_extractor.extract_crf_features(tokens, tags, prompt)
                 
                 for row in body:
                     fout.write(' '.join(row))
@@ -80,13 +81,15 @@ def extractPhraseFeatureFromAnnotation(extractiondir, annotators, id):
                 fout.write('\n')
             
             fout.close()
+           
+        #break
 
-def combine_files(feature_dir, lectures, output):
+def combine_files(feature_dir, lectures, output, prompts=['q1', 'q2']):
     
     fout = codecs.open(output, "w", "utf-8")
     
     for lec in lectures:
-        for q in ['q1', 'q2']:
+        for q in prompts:
             filename = os.path.join(feature_dir, str(lec), '%s.feature.crf'%q)
             
             for line in codecs.open(filename, 'r', 'utf-8').readlines():
@@ -115,21 +118,24 @@ def train_leave_one_lecture_out():
         test = [lec]
         
         train_filename = os.path.join(feature_cv_dir, 'train_%d.feature.crf'%i)
-        test_filename = os.path.join(feature_cv_dir, 'test_%d.feature.crf'%i)
+        
         model_file = os.path.join(model_dir, '%d.model'%i)
-        output_file = os.path.join(outputdir, 'test_%d.out'%i)
         
         print train_filename
-        print test_filename
         print model_file
-        print output_file
-        
-        combine_files(feature_dir, train, train_filename)
-        combine_files(feature_dir, test, test_filename)
         
         crf = CRF(wapiti_home)
-        crf.train(train_filename, pattern_file, model_file)
-        crf.predict(test_filename, model_file, output_file)
+        #if not fio.IsExist(model_file):
+        if True:
+            combine_files(feature_dir, train, train_filename)
+            crf.train(train_filename, pattern_file, model_file)
+        
+        for q in ['q1', 'q2']:
+            test_filename = os.path.join(feature_cv_dir, 'test_%d_%s.feature.crf'%(i, q))
+            output_file = os.path.join(outputdir, 'test_%d_%s.out'%(i, q))
+            
+            combine_files(feature_dir, test, test_filename, prompts=[q])
+            crf.predict(test_filename, model_file, output_file)
         
     print lectures
     
@@ -144,8 +150,8 @@ if __name__ == '__main__':
     extractiondir = "../data/"+course+"/"+system+"/extraction/"
     fio.NewPath(extractiondir)
     
-#     if method == 'annotator1':
-#         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 1)
+    if method == 'annotator1':
+        extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 1)
 #     elif method == 'annotator2':
 #         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 2)
 #     elif method == 'union':
@@ -154,4 +160,4 @@ if __name__ == '__main__':
 #         extractPhraseFromAnnotationIntersect(phrasedir, annotation.anotators)
 #     print "done"
 #     
-    train_leave_one_lecture_out()
+    #train_leave_one_lecture_out()

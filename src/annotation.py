@@ -23,6 +23,11 @@ prompt_dict = {'q1':0,
                'MP':1,
                }
 
+prompt_words = {
+                'q1': 'describe what you found most interesting in today\'s class'.split(),
+                'q2': 'describe what was confusing or needed more detail'.split(),
+                }
+               
 def get_name(lec, anotator):
     return anotator + '_IE256_Lecture_' + str(lec) + '_Completed'
     
