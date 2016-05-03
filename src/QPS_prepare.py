@@ -93,7 +93,7 @@ def get_max_phrase_by_ROUGE(human, systems, Cache=None):
     
     return summary
     
-def extractPhraseFromAnnotation(phrasedir, annotator, summarydir):
+def extractPhraseFromAnnotation(phrasedir, annotator, summarydir=None):
     for doc, lec, annotator in annotation.generate_all_files(annotation.datadir + 'json/', '.json', anotators = annotator, lectures=annotation.Lectures):
         print doc
         
@@ -114,11 +114,14 @@ def extractPhraseFromAnnotation(phrasedir, annotator, summarydir):
         for prompt in ['q1', 'q2']:
             filename = path + prompt + '.' + method + '.key'
             cluster_output = path + prompt + '.cluster.kmedoids.sqrt.oracle.%s'%method
-            summary_file = os.path.join(summarydir, str(lec), '%s.summary'%prompt)
+            
+            if summarydir:
+                summary_file = os.path.join(summarydir, str(lec), '%s.summary'%prompt)
             
             body = []   
             
-            summaries = []
+            if summarydir:
+                summaries = []
             
             phrase_summary_dict = task.get_phrase_summary_textdict(prompt)
             extracted_phrases = []
@@ -133,17 +136,19 @@ def extractPhraseFromAnnotation(phrasedir, annotator, summarydir):
                     row = [phrase, rank]
                     body.append(row)
                 
-                rank_summary = phrase_summary_dict[rank]
-                max_summary = get_max_phrase_by_ROUGE(rank_summary, rank_phrases, Cache)
-                print max_summary
-                
-                summaries.append(max_summary)
+                if summarydir:
+                    rank_summary = phrase_summary_dict[rank]
+                    max_summary = get_max_phrase_by_ROUGE(rank_summary, rank_phrases, Cache)
+                    print max_summary
+                    
+                    summaries.append(max_summary)
                 
             fio.SaveList(extracted_phrases, filename)
             
             fio.WriteMatrix(cluster_output, body, header = None)
             
-            fio.SaveList(summaries, summary_file)
+            if summarydir:
+                fio.SaveList(summaries, summary_file)
             
             with open(cachefile, 'w') as outfile:
                 json.dump(Cache, outfile, indent=2)
@@ -226,8 +231,9 @@ if __name__ == '__main__':
     phrasedir = "../data/"+course+"/"+system+"/phrase/"
     fio.NewPath(phrasedir)
     
-    summarydir = "../data/"+course+"/"+system+"/ClusterARank/"
-    fio.NewPath(summarydir)
+    summarydir = None #"../data/"+course+"/"+system+"/ClusterARank/"
+    if summarydir:
+        fio.NewPath(summarydir)
     
     if method == 'syntax':
         extractPhrase(excelfile, phrasedir, sennadir, method=method)
