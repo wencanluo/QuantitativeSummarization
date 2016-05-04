@@ -15,6 +15,7 @@ import json
 from CourseMirror_Survey import stopwords, punctuations
 
 from AlignPhraseAnnotation import AlignPhraseAnnotation
+from crf import CRF
 
 def isMalformed(phrase):
     N = len(phrase.split())
@@ -218,7 +219,28 @@ def extractPhraseFromAnnotationIntersect(phrasedir, annotators):
             extracted_phrases = aligner.get_intersect()
                        
             fio.SaveList(extracted_phrases, filename)
-                                        
+
+def extractPhraseFromCRF(phrasedir, systemdir):
+    crf_reader = CRF()
+    aligner = AlignPhraseAnnotation()
+    
+    lectures = annotation.Lectures
+    for i, lec in enumerate(lectures):
+        path = phrasedir + str(lec)+ '/'
+        fio.NewPath(path)
+        
+        for prompt in ['q1', 'q2']:
+            filename = path + prompt + '.' + method + '.key'
+            phrases = []
+            
+            crf_file = os.path.join(systemdir, 'extraction', 'all_output', 'test_%i_%s.out'%(i, prompt))
+            for tokens, tags in crf_reader.read_file_generator(crf_file):
+                for phrase in aligner.get_phrase(tokens, tags):
+                    phrases.append(phrase.lower())
+                    
+            fio.SaveList(phrases, filename)
+            
+            
 if __name__ == '__main__':
     course = sys.argv[1]
     maxWeek = int(sys.argv[2])
@@ -228,6 +250,9 @@ if __name__ == '__main__':
     sennadir = "../data/"+course+"/senna/"
     excelfile = "../data/CourseMIRROR/reflections.json"
             
+    systemdir = "../data/"+course+"/"+system+"/"
+    fio.NewPath(systemdir)
+    
     phrasedir = "../data/"+course+"/"+system+"/phrase/"
     fio.NewPath(phrasedir)
     
@@ -245,5 +270,8 @@ if __name__ == '__main__':
         extractPhraseFromAnnotationUnion(phrasedir, annotation.anotators)
     elif method == 'intersect':
         extractPhraseFromAnnotationIntersect(phrasedir, annotation.anotators)
+    elif method == 'crf':
+        extractPhraseFromCRF(phrasedir, systemdir)
+    
     print "done"
     

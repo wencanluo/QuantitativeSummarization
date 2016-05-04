@@ -7,6 +7,8 @@ from nltk.tag import SennaChunkTagger
 import global_params
 from CourseMirror_Survey import stopwords
 from annotation import prompt_words
+from porter import PorterStemmer              
+from collections import defaultdict
                 
 class CRF_Extractor:
     '''
@@ -19,7 +21,7 @@ class CRF_Extractor:
         if subtype_flag = True, extract the features by sub parse_type
         if bioe_flag = True, use the BIOE tags
         '''
-        self.features = ['pos', 'chunk', 'promptword', 'stopword']
+        self.features = ['pos', 'chunk', 'promptword', 'stopword', 'tf', 'rank']
         
         if 'pos' in self.features:
             self.pos_tagger = SennaTagger(global_params.sennadir)
@@ -29,9 +31,37 @@ class CRF_Extractor:
         
         self.sentences = []
         
-    def add_sentence(self, sentence):
-        self.sentences.add(sentence)
+        self.porter = PorterStemmer()
+        
+        self.token_dict = None
+        self.bins = 50
     
+    def add_sentence(self, sentence):
+        self.sentences.append(sentence)
+    
+    def get_token_tf(self):
+        self.token_dict = defaultdict(float)
+        
+        for tokens, _ in self.sentences:
+            for token in self.porter.stem_tokens(tokens):
+                self.token_dict[token] += 1.0
+        
+        self.rank_dict = defaultdict(int)
+        rank_tokens = sorted(self.token_dict, key=self.token_dict.get, reverse=True)
+        
+        self.rank_dict = defaultdict(int)
+        for i, token in enumerate(rank_tokens):
+            self.rank_dict[token] = int(i*10/len(rank_tokens))
+        
+        for t, v in self.token_dict.items(): #normalized by the number of sentences
+            x = v/len(self.sentences)
+            if x > 1.0: x = 1.0
+            
+            self.token_dict[t] = x
+        
+        
+        
+        
     def get_feature_names(self):
         return '_'.join(self.features)
     
@@ -136,19 +166,39 @@ class CRF_Extractor:
             for i, (_, c_tag) in enumerate(chunk_tags):
                 body[i].append(c_tag)
         
-        if 'promptword':
+        if 'promptword' in self.features:
             for i, token in enumerate(tokens):
                 if token in prompt_words[prompt]:
                     body[i].append('Y')
                 else:
                     body[i].append('N')
         
-        if 'stopword':
+        if 'stopword' in self.features:
             for i, token in enumerate(tokens):
                 if token in stopwords:
                     body[i].append('Y')
                 else:
                     body[i].append('N')
+        
+        if 'tf' in self.features:
+            if self.token_dict == None:
+                self.get_token_tf()
+            
+            for i, token in enumerate(self.porter.stem_tokens(tokens)):
+                assert(token in self.token_dict)
+                
+                x = int(self.token_dict[token]*self.bins)
+                body[i].append(str(x))
+        
+        if 'rank' in self.features:
+            if self.rank_dict == None:
+                self.get_token_tf()
+            
+            for i, token in enumerate(self.porter.stem_tokens(tokens)):
+                assert(token in self.rank_dict)
+                
+                x = self.rank_dict[token]
+                body[i].append(str(x))        
                 
         #last row:
         tags = [tag for tag in tags]

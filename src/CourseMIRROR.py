@@ -10,6 +10,7 @@ from cmd import Cmd
 import subprocess
 import re
 import fio
+import global_params
 
 TypeMap = {"q1":'q1_summaries', "q2":'q2_summaries', "q3":'q3_summaries', "q4":'q4_summaries'}
 TypeMapReverse = {"q1_summaries":'Point of Interest', "q2_summaries":'Muddiest Point', "q3_summaries":'Learning Point'}
@@ -163,24 +164,24 @@ class CourseMIRROR:
 #         cmd = 'cmd /C "runSennaCourseMirror.bat '+str(cid)+ ' ' + str(max_lecture) + '"'
 #         os.system(cmd)
 #            
-        cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
-        os.system(cmd)
+#        cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
+#        os.system(cmd)
 #                     
 #         #     . get PhraseMead input (CourseMirror_MeadPhrase.py)
-#         cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
-#         print cmd
-#         os.system(cmd)
+#        cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
+#        print cmd
+#        os.system(cmd)
 #              
-#         olddir = os.path.dirname(os.path.realpath(__file__))
-#              
-#         #     . get PhraseMead output
-#         meaddir = '/cygdrive/e/project/Fall2014/summarization/mead/bin/'
-#         cmd = './get_mead_summary_phrase_qps.sh ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system)
-#         os.chdir(meaddir)
-#         retcode = subprocess.call([cmd], shell=True)
-#         print retcode
-#         subprocess.call("exit 1", shell=True)
-#              
+        olddir = os.path.dirname(os.path.realpath(__file__))
+            
+        #     . get PhraseMead output
+        meaddir = global_params.meaddir
+        cmd = './get_mead_summary_phrase_qps.sh ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system)
+        os.chdir(meaddir)
+        retcode = subprocess.call([cmd], shell=True)
+        print retcode
+        subprocess.call("exit 1", shell=True)
+             
 #         os.chdir(olddir)
 #         #     . get LSA results (CourseMirrorphrase2phraseSimilarity.java)
 #         cmd = 'cmd /C "runLSA.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
@@ -195,9 +196,9 @@ class CourseMIRROR:
 #         print cmd
 #         os.system(cmd)
 #         
-        cmd = "python get_Rouge.py %s %d %s" % (cid, max_lecture, self.system)
-        print cmd
-        os.system(cmd)
+#        cmd = "python get_Rouge.py %s %d %s" % (cid, max_lecture, self.system)
+#        print cmd
+#        os.system(cmd)
         
 if __name__ == '__main__':
     
@@ -219,9 +220,13 @@ if __name__ == '__main__':
 #     similarity = 'oracle'
      
     
-    system = 'oracle_annotator_2'
-    method = 'annotator2'
-    similarity = 'oracle'
+#    system = 'oracle_annotator_2'
+#    method = 'annotator2'
+#    similarity = 'oracle'
+
+    system = 'QPS_A1_N'
+    method = 'crf'
+    similarity = 'optimumComparerLSATasa'
     
 #     system = 'oracle_union'
 #     method = 'union'
