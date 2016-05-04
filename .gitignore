@@ -7,3 +7,4 @@ WordNet-JWI
 /src/stop-words.txt
 /config
 /doc
+*.pyc
