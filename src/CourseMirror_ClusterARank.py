@@ -45,7 +45,6 @@ def getShallowSummary(excelfile, folder, clusterdir, K=30, method=None, similari
         week = i + 1
         
         for type in ['q1', 'q2', 'q3', 'q4']:
-            print excelfile, sheet, type
             
             path = folder + str(week)+ '/'
             fio.NewPath(path)
@@ -55,8 +54,11 @@ def getShallowSummary(excelfile, folder, clusterdir, K=30, method=None, similari
             phrasefile = os.path.join(clusterdir, str(week), type + '.' + method + '.key')
             if not fio.IsExist(phrasefile): continue
             
+            print excelfile, sheet, type
+            
             cluster_output = clusterdir + str(week) +'/' + type + ".cluster.kmedoids." + str(ratio) + "." +similarity + '.' + method
             weightfile = clusterdir + str(week)+ '/' + type + '.' + method + '.' + similarity
+            print weightfile
             
             if not fio.IsExist(cluster_output):
                 phraseClusteringKmedoid.getPhraseClusterPhrase(phrasefile, weightfile, cluster_output, ratio, method=method)
@@ -120,7 +122,7 @@ def GetLexRankScore(datadir, np, outputdir):
             path = path + type + '/'
             path = path + 'docsent/'
             filename = path + DID + '.docsent'
-            print filename
+            #print filename
             if not fio.IsExist(filename): continue
             
             tree = ET.parse(filename)
