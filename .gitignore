@@ -8,3 +8,4 @@ WordNet-JWI
 /config
 /doc
 *.pyc
+/src/*.pyc
