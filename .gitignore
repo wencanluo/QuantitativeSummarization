@@ -4,7 +4,6 @@
 WordNet-JWI
 /src/optimalLSA.jar
 /src/SavedHashMaps.list
-/src/stop-words.txt
 /config
 /doc
 *.pyc
