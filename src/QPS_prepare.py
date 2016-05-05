@@ -239,8 +239,8 @@ def extractPhraseFromCRF(phrasedir, systemdir):
                     phrases.append(phrase.lower())
                     
             fio.SaveList(phrases, filename)
-            
-            
+
+           
 if __name__ == '__main__':
     course = sys.argv[1]
     maxWeek = int(sys.argv[2])

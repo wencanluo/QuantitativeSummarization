@@ -14,12 +14,146 @@ import OracleExperiment
 import json
 from CourseMirror_Survey import stopwords, punctuations
 import codecs
+from nltk.tag import SennaPSGTagger
 
 import file_util
 
 from AlignPhraseAnnotation import AlignPhraseAnnotation
 from crf_feature_extractor import CRF_Extractor
 from crf import CRF
+import global_params
+
+def getSennaPSGtags(tokens):
+    tagger = SennaPSGTagger(global_params.sennadir)
+    psgtags = [tag for _, tag in tagger.tag(tokens)]
+    
+    tags = ['O']*len(tokens)
+    
+    NP = []
+		
+    stack = []
+    tmp = []
+    
+    hasNP = False
+    for k, (token, tag) in enumerate(zip(tokens, psgtags)):
+        Added = False
+        
+        for i, ch in enumerate(tag):
+            if ch == '(':
+                if not hasNP: continue
+                stack.append(ch)
+            elif ch == ')':
+                if not hasNP: continue
+                
+                stack.pop()
+                if len(stack) == 0: #empty, the NP is done
+                    if not Added: 
+                        tmp.append(token)
+                        Added = True
+                        tags[k] = 'I'
+                        
+                    NP.append(" ".join(tmp))
+                    tmp = []
+                    hasNP = False
+            else:
+                if hasNP: 
+                    if not Added: #add the word only once
+                        tmp.append(token)
+                        Added = True
+                        tags[k] = 'I'
+                    continue
+                
+                if tag[i-1:].startswith('(NP'):
+                    hasNP = True
+                    stack.append('(')
+                    tmp.append(token)
+                    tags[k] = 'B'
+                    
+                    Added = True
+    
+    return tags
+
+def extractPhraseFromSyntax(extractiondir, annotators):
+    for docs in annotation.generate_all_files_by_annotators(annotation.datadir + 'json/', '.json', anotators = annotators, lectures=annotation.Lectures):
+        
+        doc0, lec0, annotator0 = docs[0]
+        doc1, lec1, annotator1 = docs[1]
+        
+        assert(lec0 == lec1)
+        lec = lec0
+        
+        #load tasks
+        task0 = annotation.Task()
+        task0.loadjson(doc0)
+        
+        task1 = annotation.Task()
+        task1.loadjson(doc1)
+        
+        path = extractiondir + str(lec)+ '/'
+        fio.NewPath(path)
+        
+        for prompt in ['q1', 'q2']:
+            filename = path + prompt + '.feature.crf'
+            print filename
+            
+            fout = codecs.open(filename, "w", "utf-8")
+            
+            extracted_phrases = []
+            phrase_annotation0 = task0.get_phrase_annotation(prompt)
+            phrase_annotation1 = task1.get_phrase_annotation(prompt)
+            
+            aligner = AlignPhraseAnnotation(task0, task1, prompt)
+            aligner.align()
+            
+            for d in aligner.responses:
+                tokens = [token.lower() for token in d['response']]
+                tags = d['tags'][0]
+                
+                n_tokens = []
+                n_tags = []
+                
+                for token, tag in zip(tokens, tags):
+                    if len(token) == 0: continue
+                    
+                    n_tokens.append(token)
+                    n_tags.append(tag)
+                
+                if len(n_tokens) == 0: continue
+                
+                tokens = n_tokens
+                tags = n_tags
+                
+                body = []
+
+                words = tokens
+                N = len(tokens)
+                
+                #first row: the word token
+                for word in words:
+                    row = []
+                    row.append(word)
+                    body.append(row)
+                
+                #last row:
+                tags = [tag for tag in tags]
+                
+                for i, tag in enumerate(tags):
+                    body[i].append(tag)
+                    
+                #extract the NP tags
+                psg_tags = getSennaPSGtags(tokens)
+                for i, tag in enumerate(psg_tags):
+                    body[i].append(tag)
+   
+                for row in body:
+                    fout.write(' '.join(row))
+                    fout.write('\n')
+                fout.write('\n')
+            
+            fout.close()
+           
+        if debug:
+            break
 
 def extractPhraseFeatureFromAnnotation(extractiondir, annotators, id, empty='N'):
     for docs in annotation.generate_all_files_by_annotators(annotation.datadir + 'json/', '.json', anotators = annotators, lectures=annotation.Lectures):
@@ -91,10 +225,7 @@ def extractPhraseFeatureFromAnnotation(extractiondir, annotators, id, empty='N')
                 fout.write('\n')
             
             fout.close()
-           
-        if debug:
-            break
-
+                    
 def combine_files(feature_dir, lectures, output, prompts=['q1', 'q2']):
     
     fout = codecs.open(output, "w", "utf-8")
@@ -168,8 +299,38 @@ def train_leave_one_lecture_out(name='cv'):
         if debug: break
     
     file_util.save_dict2json(dict, class_index_dict_file)
+
+def train_leave_one_lecture_out_NP(name='cv'):
+    feature_dir = '../data/IE256/%s/extraction/'%(system)
+    
+    outputdir = '../data/IE256/%s/extraction/%s_output/'%(system, name)
+    fio.NewPath(outputdir)
+    
+    lectures = annotation.Lectures
+    
+    dict = defaultdict(int)
+    
+    for i, lec in enumerate(lectures):
+        train = [x for x in lectures if x != lec]
+        test = [lec]
+        
+        for q in ['q1', 'q2']:
+            
+            output_file = os.path.join(outputdir, 'test_%d_%s.out'%(i, q))
+            
+            dict['test_%d_%s'%(i, q)] = 1
+            
+            combine_files(feature_dir, test, output_file, prompts=[q])
+            
+        
+        if debug: break
+    
+    file_util.save_dict2json(dict, class_index_dict_file)
     
 if __name__ == '__main__':
+    #print getSennaPSGtags("I think the main topic of this course is interesting".split())
+    #exit(-1)
+    
     debug = False
     
     course = sys.argv[1]
@@ -185,7 +346,11 @@ if __name__ == '__main__':
     
     class_index_dict_file = '../data/IE256/class_dict.json'
     
-    if method == 'annotator1':
+    if method == 'NP':
+        extractPhraseFromSyntax(extractiondir, annotation.anotators)
+        train_leave_one_lecture_out_NP('all')
+        
+    elif method == 'annotator1':
         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 0, empty)        
     elif method == 'annotator2':
         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 1, empty)
@@ -195,4 +360,5 @@ if __name__ == '__main__':
 #         extractPhraseFromAnnotationIntersect(phrasedir, annotation.anotators)
 #     print "done"
 #     
-    train_leave_one_lecture_out('all')
+    if method != 'NP':
+        train_leave_one_lecture_out('all')
