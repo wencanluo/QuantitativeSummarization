@@ -225,7 +225,149 @@ def extractPhraseFeatureFromAnnotation(extractiondir, annotators, id, empty='N')
                 fout.write('\n')
             
             fout.close()
+
+def extractPhraseFeatureFromUnion(extractiondir, annotators, empty='N'):
+    for docs in annotation.generate_all_files_by_annotators(annotation.datadir + 'json/', '.json', anotators = annotators, lectures=annotation.Lectures):
+        
+        doc0, lec0, annotator0 = docs[0]
+        doc1, lec1, annotator1 = docs[1]
+        
+        assert(lec0 == lec1)
+        lec = lec0
+        
+        #load tasks
+        task0 = annotation.Task()
+        task0.loadjson(doc0)
+        
+        task1 = annotation.Task()
+        task1.loadjson(doc1)
+        
+        path = extractiondir + str(lec)+ '/'
+        fio.NewPath(path)
+        
+        for prompt in ['q1', 'q2']:
+            filename = path + prompt + '.feature.crf'
+            print filename
+            
+            fout = codecs.open(filename, "w", "utf-8")
+            
+            extracted_phrases = []
+            phrase_annotation0 = task0.get_phrase_annotation(prompt)
+            phrase_annotation1 = task1.get_phrase_annotation(prompt)
+            
+            aligner = AlignPhraseAnnotation(task0, task1, prompt)
+            aligner.align()
+            
+            crf_feature_extractor = CRF_Extractor()
+            
+            #add sentences to the extrator for global feature extraction
+            for d in aligner.responses:
+                tokens = [token.lower() for token in d['response']]
+                tags = aligner.union_tag(d['tags'][0], d['tags'][1])
+                
+                n_tokens = []
+                n_tags = []
+                
+                for token, tag in zip(tokens, tags):
+                    if len(token) == 0: continue
                     
+                    n_tokens.append(token)
+                    n_tags.append(tag)
+                
+                if len(n_tokens) == 0: continue
+                
+                tokens = n_tokens
+                tags = n_tags
+                
+                crf_feature_extractor.add_sentence((tokens, tags))
+            
+            for tokens, tags in crf_feature_extractor.sentences:
+                if empty == 'Y':
+                    flag = True
+                    for tag in tags:
+                        if tag != 'O': flag = False
+                    if flag: continue
+                
+                body = crf_feature_extractor.extract_crf_features(tokens, tags, prompt)
+                
+                for row in body:
+                    fout.write(' '.join(row))
+                    fout.write('\n')
+                fout.write('\n')
+            
+            fout.close()
+
+def extractPhraseFeatureFromIntersect(extractiondir, annotators, empty='N'):
+    for docs in annotation.generate_all_files_by_annotators(annotation.datadir + 'json/', '.json', anotators = annotators, lectures=annotation.Lectures):
+        
+        doc0, lec0, annotator0 = docs[0]
+        doc1, lec1, annotator1 = docs[1]
+        
+        assert(lec0 == lec1)
+        lec = lec0
+        
+        #load tasks
+        task0 = annotation.Task()
+        task0.loadjson(doc0)
+        
+        task1 = annotation.Task()
+        task1.loadjson(doc1)
+        
+        path = extractiondir + str(lec)+ '/'
+        fio.NewPath(path)
+        
+        for prompt in ['q1', 'q2']:
+            filename = path + prompt + '.feature.crf'
+            print filename
+            
+            fout = codecs.open(filename, "w", "utf-8")
+            
+            extracted_phrases = []
+            phrase_annotation0 = task0.get_phrase_annotation(prompt)
+            phrase_annotation1 = task1.get_phrase_annotation(prompt)
+            
+            aligner = AlignPhraseAnnotation(task0, task1, prompt)
+            aligner.align()
+            
+            crf_feature_extractor = CRF_Extractor()
+            
+            #add sentences to the extrator for global feature extraction
+            for d in aligner.responses:
+                tokens = [token.lower() for token in d['response']]
+                tags = aligner.interset_tag(d['tags'][0], d['tags'][1])
+                
+                n_tokens = []
+                n_tags = []
+                
+                for token, tag in zip(tokens, tags):
+                    if len(token) == 0: continue
+                    
+                    n_tokens.append(token)
+                    n_tags.append(tag)
+                
+                if len(n_tokens) == 0: continue
+                
+                tokens = n_tokens
+                tags = n_tags
+                
+                crf_feature_extractor.add_sentence((tokens, tags))
+            
+            for tokens, tags in crf_feature_extractor.sentences:
+                if empty == 'Y':
+                    flag = True
+                    for tag in tags:
+                        if tag != 'O': flag = False
+                    if flag: continue
+                
+                body = crf_feature_extractor.extract_crf_features(tokens, tags, prompt)
+                
+                for row in body:
+                    fout.write(' '.join(row))
+                    fout.write('\n')
+                fout.write('\n')
+            
+            fout.close()
+            
 def combine_files(feature_dir, lectures, output, prompts=['q1', 'q2']):
     
     fout = codecs.open(output, "w", "utf-8")
@@ -354,11 +496,11 @@ if __name__ == '__main__':
         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 0, empty)        
     elif method == 'annotator2':
         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 1, empty)
-#     elif method == 'union':
-#         extractPhraseFromAnnotationUnion(phrasedir, annotation.anotators)
-#     elif method == 'intersect':
-#         extractPhraseFromAnnotationIntersect(phrasedir, annotation.anotators)
-#     print "done"
-#     
+    elif method == 'union':
+        extractPhraseFeatureFromUnion(extractiondir, annotation.anotators, empty)
+    elif method == 'intersect':
+        extractPhraseFeatureFromIntersect(extractiondir, annotation.anotators, empty)
+    print "done"
+     
     if method != 'NP':
         train_leave_one_lecture_out('all')
