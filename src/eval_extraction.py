@@ -8,7 +8,7 @@ if __name__ == '__main__':
     
     body = []
     head = ['system', 'accuracy', 'precision', 'recall', 'F-measure']
-    for system in ['QPS_A1_N', 'QPS_A1_Y', 'QPS_A2_N', 'QPS_A2_Y', 'QPS_NP']:
+    for system in ['QPS_NP', 'QPS_A1_N', 'QPS_A1_Y', 'QPS_A2_N', 'QPS_A2_Y', 'QPS_union', 'QPS_intersect', 'QPS_combine']:
             crf_sub_output = '../data/IE256/%s/extraction/all_output/'%system
     
             eval = CRFEval(class_index_dict_file, crf_sub_output)
