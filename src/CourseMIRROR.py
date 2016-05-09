@@ -224,10 +224,26 @@ if __name__ == '__main__':
 #    method = 'annotator2'
 #    similarity = 'oracle'
 
-    system = 'QPS_A2_N'
+#     system = 'QPS_A2_N'
+#     method = 'crf'
+#     similarity = 'optimumComparerLSATasa'
+
+#     system = 'QPS_NP'
+#     method = 'crf'
+#     similarity = 'optimumComparerLSATasa'
+
+#     system = 'QPS_union'
+#     method = 'crf'
+#     similarity = 'optimumComparerLSATasa'
+
+#     system = 'QPS_intersect'
+#     method = 'crf'
+#     similarity = 'optimumComparerLSATasa'
+
+    system = 'QPS_combine'
     method = 'crf'
     similarity = 'optimumComparerLSATasa'
-    
+                
 #     system = 'oracle_union'
 #     method = 'union'
 #     
