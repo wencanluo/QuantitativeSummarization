@@ -28,6 +28,7 @@ def getRouge_IE256(refs, model):
     row = []
     for scorename in RougeNames:
         filename = tmpdir + "OUT_"+scorename+".csv"
+        
         lines = fio.ReadFile(filename)
         try:
             scorevalues = lines[1].split(',')
@@ -92,6 +93,13 @@ def getRouge(ref, model):
     row = []
     for scorename in RougeNames:
         filename = tmpdir + "OUT_"+scorename+".csv"
+        
+        if not fio.IsExist(filename): 
+            print filename, " not exist"
+            row = row + [0, 0, 0]
+            
+            continue
+        
         lines = fio.ReadFile(filename)
         try:
             scorevalues = lines[1].split(',')

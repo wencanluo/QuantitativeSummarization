@@ -90,9 +90,10 @@ if __name__ == '__main__':
     course = sys.argv[1]
     maxWeek = int(sys.argv[2])
     system = sys.argv[3]
+    posfix = sys.argv[4]
     
     datadir = "../data/"+course+"/"+system+ '/ClusterARank/'
-    output = '../data/%s/%s/rouge.txt' % (course, system)
+    output = '../data/%s/%s/rouge_%s.txt' % (course, system, posfix)
     
     getRouge(datadir, maxWeek, output)
                      

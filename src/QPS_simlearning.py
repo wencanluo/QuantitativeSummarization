@@ -32,7 +32,7 @@ import global_params
 
 sim_exe = '.feature.sim'
 
-def extractPhrasePaireFeature(phrasedir, id):
+def extractPhrasePaireFeature(phrasedir):
     for lec in annotation.Lectures:
         path = phrasedir + str(lec)+ '/'
         fio.NewPath(path)
@@ -46,25 +46,13 @@ def extractPhrasePaireFeature(phrasedir, id):
             
             feature_extractor = Similarity(prefix)
             
-            phrase_annotation = task.get_phrase_annotation(prompt)
+            phrasefile = os.path.join(path, "%s.%s.key"%(prompt, method))
             
-            #positive examples
-            for rank1 in sorted(phrase_annotation):
-                for rank2 in sorted(phrase_annotation):
-                    if rank1 == rank2:
-                        score = 1.0
-                    else:
-                        score = 0.0
-                                
-                    phrases1 = phrase_annotation[rank1]
-                    phrases2 = phrase_annotation[rank2]
-                    for phrasedict1 in phrases1:
-                        p1 = phrasedict1['phrase'].lower().strip()
-                        
-                        for phrasedict2 in phrases2:
-                            p2 = phrasedict2['phrase'].lower().strip()
-                            
-                            featureset.append((feature_extractor.get_features(p1, p2), score, {'p1':p1, 'p2':p2}))
+            phrases = fio.LoadList(phrasefile)
+            
+            for p1 in phrases:
+                for p2 in phrases:
+                    featureset.append((feature_extractor.get_features(p1, p2), 0.0, {'p1':p1, 'p2':p2}))
             
             fio.SaveDict2Json(featureset, filename)
             
@@ -113,6 +101,38 @@ def extractPhrasePaireFromAnnotation(phrasedir, annotators, id):
             fio.SaveDict2Json(featureset, filename)
             
             feature_extractor.save()
+
+def combine_files_test(phrasedir, lectures, features=None, prompts=['q1', 'q2']):
+    X = []
+    Y = []
+    
+    if features == None:
+        sim_extractor = Similarity()
+        features = sorted(sim_extractor.features.keys())
+
+    for i, lec in enumerate(lectures):
+        for q in prompts:
+            
+            for phrasedir in [phrasedir]:
+                path = phrasedir + str(lec)+ '/'
+                
+                filename = os.path.join(path, q + sim_exe)
+                
+                data = fio.LoadDictJson(filename)
+                
+                for fdict, score, _ in data:
+                    row = []
+                    
+                    for name in features:
+                        x = fdict[name]
+                        if str(x) == 'nan':
+                            x = 0.0
+                        row.append(x)
+                    
+                    X.append(row)
+                    Y.append(score)
+                        
+    return X, Y
            
 def combine_files(lectures, features=None, prompts=['q1', 'q2']):
     
@@ -356,6 +376,49 @@ def train_leave_one_lecture_out_svm(model_dir, name='simlearn_cv'):
         
         fio.WriteMatrix(output, MSE, header=['lec', 'prompt', 'accuracy', 'precision', 'recall', 'f-score'])
 
+def predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svr'):    
+    sim_extractor = Similarity()
+    allfeatures = sorted(sim_extractor.features.keys())
+    
+    features = allfeatures
+    
+    name = '_'.join(features)
+    
+    lectures = annotation.Lectures
+    
+    for i, lec in enumerate(lectures):
+        test = [lec]
+        
+        print test
+        model_file = os.path.join(model_dir, '%d_%s.model'%(lec, name))
+        
+        with open(model_file, 'rb') as handle:
+            clf = pickle.load(handle)
+        
+        path = os.path.join(phrasedir, str(lec))
+        
+        for q in ['q1', 'q2']:
+            test_X, test_Y = combine_files_test(phrasedir, test, features, prompts=[q])
+            predict_Y = clf.predict(test_X)
+            
+            #write the output
+            phrasefile = os.path.join(path, "%s.%s.key"%(q, method))
+            phrases = fio.LoadList(phrasefile)
+            
+            assert(len(predict_Y) == len(phrases)*len(phrases))
+            
+            k = 0
+            body = []
+            for p1 in phrases:
+                row = []
+                for p2 in phrases:
+                    row.append(predict_Y[k])
+                    k += 1
+                body.append(row)
+            
+            output = os.path.join(path, "%s.%s.%s"%(q, method,modelname))
+            fio.WriteMatrix(output, body, phrases)
+            
 def gather_performance(output):
     sim_extractor = Similarity()
     allfeatures = sorted(sim_extractor.features.keys())
@@ -385,10 +448,28 @@ def gather_performance(output):
         allbody.append(average)
     
     fio.WriteMatrix(output, allbody, allhead)
+
         
 if __name__ == '__main__':
     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
-    #exit(-1)
+    course = "IE256"
+    for system, method in [
+                           ('QPS_A1_N', 'crf'),
+                           ('QPS_A2_N', 'crf'),
+                           #('QPS_NP', 'crf'),
+                           ('QPS_union', 'crf'),
+                           ('QPS_intersect', 'crf'),
+                           ('QPS_combine', 'crf'),
+                           ]:
+        phrasedir = "../data/"+course+"/"+system+"/phrase/"
+        
+        #extractPhrasePaireFeature(phrasedir)
+        
+        model_dir = "../data/"+course+"/simlearning/svm/"
+        
+        predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svm')
+        
+    exit(-1)
     
     debug = False
     
@@ -415,11 +496,13 @@ if __name__ == '__main__':
     model_dir = "../data/"+course+"/simlearning/svm/"
     #train_leave_one_lecture_out(model_dir)
     
-    fio.NewPath(model_dir)
-    train_leave_one_lecture_out_svm(model_dir)
+#     fio.NewPath(model_dir)
+#     train_leave_one_lecture_out_svm(model_dir)
     
 #     all_performance = "../data/"+course+"/simlearning/svm/out.txt"
 #     gather_performance(all_performance)
+    
+#     extractPhrasePaireFeature(phrasedir)
     
     print "done"
     

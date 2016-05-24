@@ -185,23 +185,51 @@ class CourseMIRROR:
 #         os.chdir(olddir)
         #     . get LSA results (CourseMirrorphrase2phraseSimilarity.java)
         #cmd = 'cmd /C "runLSA.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
-        cmd = 'cmd /C "runLSA_All.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
-        os.system(cmd)
+#         cmd = 'cmd /C "runLSA_All.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
+#         os.system(cmd)
 #              
-#         # get ClusterARank (CourseMirror_phraseClusteringbasedShallowSummaryKmedoid-New-Malformed-LexRank.py)
-#         cmd = "python CourseMirror_ClusterARank.py %s %d %s %s %s" %(cid, max_lecture, self.system, self.method, self.similarity)
-#         print cmd
-#         os.system(cmd)
-#               
-#         cmd = "python get_summary.py %s %s" % (cid, self.system)
-#         print cmd
-#         os.system(cmd)
-#            
-#         cmd = "python get_Rouge.py %s %d %s" % (cid, max_lecture, self.system)
-#         print cmd
-#         os.system(cmd)
+        # get ClusterARank (CourseMirror_phraseClusteringbasedShallowSummaryKmedoid-New-Malformed-LexRank.py)
+        cmd = "python CourseMirror_ClusterARank.py %s %d %s %s %s" %(cid, max_lecture, self.system, self.method, self.similarity)
+        print cmd
+        os.system(cmd)
+               
+        cmd = "python get_summary.py %s %s" % (cid, self.system)
+        print cmd
+        os.system(cmd)
+            
+        cmd = "python get_Rouge.py %s %d %s %s" % (cid, max_lecture, self.system, self.method + '_' + self.similarity)
+        print cmd
+        os.system(cmd)
+
+def gather_rouge():
+    datadir = '../data/IE256/'
+    
+    output = '../data/IE256/result.rouge.txt'
+    
+    models = ['QPS_A1_N', 'QPS_A2_N', 'QPS_union', 'QPS_intersect', 'QPS_combine']
+    methods = ['rouge_crf_svm', 'rouge_crf_svr']
+    
+    Header = ['method', 'model', 'R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'RSU4-P', 'RSU4-F',]
+    
+    
+    xbody = []
+    for method in methods:
+        for model in models:
+            filename = os.path.join(datadir, model, "%s.txt"%method)
+                        
+            head, body = fio.ReadMatrix(filename, hasHead=True)
+            
+            row = [method, model]
+            row += body[-1][1:]
+            
+            xbody.append(row)
+    
+    fio.WriteMatrix(output, xbody, Header)
         
 if __name__ == '__main__':
+    
+    gather_rouge()
+    exit(-1)
     
     import ConfigParser
     import sys
@@ -212,11 +240,6 @@ if __name__ == '__main__':
     config.read('../config/config_'+course+'.cfg')
     
     cid = config.get('course', 'cid')
-    
-    system = 'oracle_annotator_1'
-    method = 'annotator1'
-    similarity = 'oracle'
-     
     
 #    system = 'oracle_annotator_2'
 #    method = 'annotator2'
@@ -248,14 +271,28 @@ if __name__ == '__main__':
 #     system = 'oracle_intersect'
 #     method = 'intersect'
     
-    for system, method, similarity in [('oracle_annotator_1', 'annotator1', 'oracle'),
-                                       ('oracle_annotator_2', 'annotator2', 'oracle'),
-                                       ('QPS_A1_N', 'crf', 'optimumComparerLSATasa'),
-                                       ('QPS_A2_N', 'crf', 'optimumComparerLSATasa'),
-                                       ('QPS_NP', 'crf', 'optimumComparerLSATasa'),
-                                       ('QPS_union', 'crf', 'optimumComparerLSATasa'),
-                                       ('QPS_intersect', 'crf', 'optimumComparerLSATasa'),
-                                       ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
+    for system, method, similarity in [
+#                                        ('oracle_annotator_1', 'annotator1', 'oracle'),
+#                                        ('oracle_annotator_2', 'annotator2', 'oracle'),
+#                                        ('QPS_A1_N', 'crf', 'optimumComparerLSATasa'),
+#                                        ('QPS_A2_N', 'crf', 'optimumComparerLSATasa'),
+#                                        ('QPS_NP', 'crf', 'optimumComparerLSATasa'),
+#                                        ('QPS_union', 'crf', 'optimumComparerLSATasa'),
+#                                        ('QPS_intersect', 'crf', 'optimumComparerLSATasa'),
+#                                        ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
+                                        ('QPS_A1_N', 'crf', 'svr'),
+                                        ('QPS_A2_N', 'crf', 'svr'),
+                                        #('QPS_NP', 'crf', 'svr'),
+                                        ('QPS_union', 'crf', 'svr'),
+                                        ('QPS_intersect', 'crf', 'svr'),
+                                        ('QPS_combine', 'crf', 'svr'),
+                                        
+                                        ('QPS_A1_N', 'crf', 'svm'),
+                                        ('QPS_A2_N', 'crf', 'svm'),
+                                        #('QPS_NP', 'crf', 'svm'),
+                                        ('QPS_union', 'crf', 'svm'),
+                                        ('QPS_intersect', 'crf', 'svm'),
+                                        ('QPS_combine', 'crf', 'svm'),
                                        ]:
     
         course_mirror_server = CourseMIRROR(config.get('Parse', 'PARSE_APP_ID'), 
