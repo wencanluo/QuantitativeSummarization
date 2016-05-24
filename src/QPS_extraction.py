@@ -226,6 +226,38 @@ def extractPhraseFeatureFromAnnotation(extractiondir, annotators, id, empty='N')
             
             fout.close()
 
+def extractVocab(annotators, output):
+    vocab = defaultdict(int)
+    for docs in annotation.generate_all_files_by_annotators(annotation.datadir + 'json/', '.json', anotators = annotators, lectures=annotation.Lectures):
+        
+        doc0, lec0, annotator0 = docs[0]
+        doc1, lec1, annotator1 = docs[1]
+        
+        assert(lec0 == lec1)
+        lec = lec0
+        
+        #load tasks
+        task0 = annotation.Task()
+        task0.loadjson(doc0)
+        
+        task1 = annotation.Task()
+        task1.loadjson(doc1)
+        
+        for prompt in ['q1', 'q2']:
+            phrase_annotation0 = task0.get_phrase_annotation(prompt)
+            phrase_annotation1 = task1.get_phrase_annotation(prompt)
+            
+            aligner = AlignPhraseAnnotation(task0, task1, prompt)
+            aligner.align()
+            
+            #add sentences to the extrator for global feature extraction
+            for d in aligner.responses:
+                tokens = [token.lower() for token in d['response']]
+                
+                for token in tokens:
+                    vocab[token] += 1
+    fio.SaveDict2Json(vocab, output)
+            
 def extractPhraseFeatureFromUnion(extractiondir, annotators, empty='N'):
     for docs in annotation.generate_all_files_by_annotators(annotation.datadir + 'json/', '.json', anotators = annotators, lectures=annotation.Lectures):
         
@@ -547,6 +579,10 @@ def train_leave_one_lecture_out_NP(name='cv'):
     file_util.save_dict2json(dict, class_index_dict_file)
     
 if __name__ == '__main__':
+    
+    #extractVocab(annotation.anotators, '../data/IE256/vocab.json')
+    #exit(-1)
+    
     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
     #exit(-1)
     
