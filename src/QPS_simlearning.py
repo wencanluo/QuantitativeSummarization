@@ -451,24 +451,24 @@ def gather_performance(output):
 
         
 if __name__ == '__main__':
-    #print getSennaPSGtags("I think the main topic of this course is interesting".split())
+#     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
     course = "IE256"
     for system, method in [
-                           ('QPS_A1_N', 'crf'),
-                           ('QPS_A2_N', 'crf'),
-                           #('QPS_NP', 'crf'),
-                           ('QPS_union', 'crf'),
-                           ('QPS_intersect', 'crf'),
-                           ('QPS_combine', 'crf'),
+#                            ('QPS_A1_N', 'crf'),
+#                            ('QPS_A2_N', 'crf'),
+                             ('QPS_NP', 'syntax'),
+#                            ('QPS_union', 'crf'),
+#                            ('QPS_intersect', 'crf'),
+#                            ('QPS_combine', 'crf'),
                            ]:
         phrasedir = "../data/"+course+"/"+system+"/phrase/"
-        
+          
         #extractPhrasePaireFeature(phrasedir)
-        
-        model_dir = "../data/"+course+"/simlearning/svm/"
-        
-        predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svm')
-        
+          
+        model_dir = "../data/"+course+"/simlearning/"
+          
+        predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svr')
+          
     exit(-1)
     
     debug = False
@@ -502,7 +502,7 @@ if __name__ == '__main__':
 #     all_performance = "../data/"+course+"/simlearning/svm/out.txt"
 #     gather_performance(all_performance)
     
-#     extractPhrasePaireFeature(phrasedir)
+    extractPhrasePaireFeature(phrasedir)
     
     print "done"
     

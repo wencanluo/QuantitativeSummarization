@@ -57,10 +57,13 @@ def getShallowSummary(excelfile, folder, clusterdir, K=30, method=None, similari
             print excelfile, sheet, type
             
             cluster_output = clusterdir + str(week) +'/' + type + ".cluster.kmedoids." + str(ratio) + "." +similarity + '.' + method
+            print cluster_output
+            
             weightfile = clusterdir + str(week)+ '/' + type + '.' + method + '.' + similarity
             print weightfile
             
             if not fio.IsExist(cluster_output):
+                print "clustering"
                 phraseClusteringKmedoid.getPhraseClusterPhrase(phrasefile, weightfile, cluster_output, ratio, method=method)
             if not fio.IsExist(cluster_output): continue
             body = fio.ReadMatrix(cluster_output, False)
