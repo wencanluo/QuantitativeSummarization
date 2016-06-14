@@ -20,5 +20,5 @@ def extract_infomration():
         task.save2json(output)
         
 if __name__ == '__main__':
-    #extract_text()
+    extract_text()
     extract_infomration()

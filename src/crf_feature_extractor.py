@@ -207,3 +207,8 @@ class CRF_Extractor:
             body[i].append(tag)
         
         return body
+
+if __name__ == '__main__':
+    extractor = CRF_Extractor()
+    
+    extractor.extract_crf_features("I do not know", 'B O O B', 'q1')

@@ -135,38 +135,43 @@ class CourseMIRROR:
         return ""
 
     def run(self, cid, summarylastlecture=False):
-        max_lecture = self.get_max_lecture_num(cid)
-        print "max_lecture", max_lecture
+        max_lecture = 26
         
-        #get reflections
-        reflections = self.get_reflections(cid)
-        jsonfile = '../data/CourseMIRROR/reflections.json' 
-        with open(jsonfile, 'w') as outfile:
-            json.dump(reflections, outfile, encoding='utf-8', indent=2)
-           
-        #get lectures
-        lectures = self.get_lectures(cid)
-        jsonfile = '../data/CourseMIRROR/lectures.json' 
-        with open(jsonfile, 'w') as outfile:
-            json.dump(lectures, outfile, encoding='utf-8', indent=2)
-           
-        self.N = len(reflections['results'])
-        print "total number of reflections:", self.N
-            
-        if self.N == self.old_N: #no need to summary
-            return
-            
-        self.old_N = self.N
+#         max_lecture = self.get_max_lecture_num(cid)
+#         print "max_lecture", max_lecture
+#         
+#         #get reflections
+#         reflections = self.get_reflections(cid)
+#         jsonfile = '../data/CourseMIRROR/reflections.json' 
+#         with open(jsonfile, 'w') as outfile:
+#             json.dump(reflections, outfile, encoding='utf-8', indent=2)
+#            
+#         #get lectures
+#         lectures = self.get_lectures(cid)
+#         jsonfile = '../data/CourseMIRROR/lectures.json' 
+#         with open(jsonfile, 'w') as outfile:
+#             json.dump(lectures, outfile, encoding='utf-8', indent=2)
+#            
+#         self.N = len(reflections['results'])
+#         print "total number of reflections:", self.N
+#             
+#         if self.N == self.old_N: #no need to summary
+#             return
+#             
+#         self.old_N = self.N
            
         #run senna
-        os.system('python CourseMirror_Survey.py ' + str(cid) + ' ' +  str(max_lecture))
-             
-        cmd = 'cmd /C "runSennaCourseMirror.bat '+str(cid)+ ' ' + str(max_lecture) + '"'
-        os.system(cmd)
+#         os.system('python CourseMirror_Survey.py ' + str(cid) + ' ' +  str(max_lecture))
+#              
+#         cmd = 'cmd /C "runSennaCourseMirror.bat '+str(cid)+ ' ' + str(max_lecture) + '"'
+#         os.system(cmd)
             
-        cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
-        os.system(cmd)
-                      
+#         cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
+#         os.system(cmd)
+        
+#         cmd = 'python QPS_extraction.py %s %d %s %s %s'%(cid, max_lecture, self.system, str(self.method), 'N')
+#         os.system(cmd)
+        
         #     . get PhraseMead input (CourseMirror_MeadPhrase.py)
         cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
         print cmd
@@ -188,18 +193,18 @@ class CourseMIRROR:
         cmd = 'cmd /C "runLSA_All.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
         os.system(cmd)
               
-        # get ClusterARank (CourseMirror_phraseClusteringbasedShallowSummaryKmedoid-New-Malformed-LexRank.py)
-        cmd = "python CourseMirror_ClusterARank.py %s %d %s %s %s" %(cid, max_lecture, self.system, self.method, self.similarity)
-        print cmd
-        os.system(cmd)
-               
-        cmd = "python get_summary.py %s %s" % (cid, self.system)
-        print cmd
-        os.system(cmd)
-            
-        cmd = "python get_Rouge.py %s %d %s %s" % (cid, max_lecture, self.system, self.method + '_' + self.similarity)
-        print cmd
-        os.system(cmd)
+#         # get ClusterARank (CourseMirror_phraseClusteringbasedShallowSummaryKmedoid-New-Malformed-LexRank.py)
+#         cmd = "python CourseMirror_ClusterARank.py %s %d %s %s %s" %(cid, max_lecture, self.system, self.method, self.similarity)
+#         print cmd
+#         os.system(cmd)
+#                
+#         cmd = "python get_summary.py %s %s" % (cid, self.system)
+#         print cmd
+#         os.system(cmd)
+#             
+#         cmd = "python get_Rouge.py %s %d %s %s" % (cid, max_lecture, self.system, self.method + '_' + self.similarity)
+#         print cmd
+#         os.system(cmd)
 
 def gather_rouge(output):
     datadir = '../data/IE256/'
@@ -284,14 +289,21 @@ if __name__ == '__main__':
 #     os.system(cmd)
     
     for system, method, similarity in [
-                                        ('oracle_annotator_1', 'annotator1', 'oracle'),
+                                        #('oracle_annotator_1', 'annotator1', 'oracle'),
 #                                         ('oracle_annotator_2', 'annotator2', 'oracle'),
-#                                        ('QPS_A1_N', 'crf', 'optimumComparerLSATasa'),
-#                                        ('QPS_A2_N', 'crf', 'optimumComparerLSATasa'),
-#                                        ('QPS_NP', 'crf', 'optimumComparerLSATasa'),
-#                                        ('QPS_union', 'crf', 'optimumComparerLSATasa'),
-#                                        ('QPS_intersect', 'crf', 'optimumComparerLSATasa'),
-#                                        ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
+#                                         ('QPS_A1_N', 'annotator1', 'optimumComparerLSATasa'),
+#                                         ('QPS_A2_N', 'annotator2', 'optimumComparerLSATasa'),
+                                        ('QPS_NP', 'syntax', 'optimumComparerLSATasa'),
+#                                         ('QPS_union', 'union', 'optimumComparerLSATasa'),
+#                                         ('QPS_intersect', 'intersect', 'optimumComparerLSATasa'),
+#                                         ('QPS_combine', 'combine', 'optimumComparerLSATasa'),
+
+#                                         ('QPS_A1_N', 'crf', 'optimumComparerLSATasa'),
+#                                         ('QPS_A2_N', 'crf', 'optimumComparerLSATasa'),
+#                                         ('QPS_NP', 'crf', 'optimumComparerLSATasa'),
+#                                         ('QPS_union', 'crf', 'optimumComparerLSATasa'),
+#                                         ('QPS_intersect', 'crf', 'optimumComparerLSATasa'),
+#                                         ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
 
 #                                         ('QPS_A1_N', 'crf', 'svr'),
 #                                         ('QPS_A2_N', 'crf', 'svr'),
@@ -320,8 +332,8 @@ if __name__ == '__main__':
 #                                         ('QPS_union', 'crf', 'ct.svm.default'),
 #                                         ('QPS_intersect', 'crf', 'ct.svm.default'),
 #                                         ('QPS_combine', 'crf', 'ct.svm.default'),
-
-                                        ('QPS_NP', 'syntax', 'ct.lsa.default'),
+#
+#                                         ('QPS_NP', 'syntax', 'ct.lsa.default'),
                                        ]:
     
         course_mirror_server = CourseMIRROR(config.get('Parse', 'PARSE_APP_ID'), 

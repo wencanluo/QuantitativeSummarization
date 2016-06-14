@@ -485,7 +485,7 @@ def combine_files(feature_dir, lectures, output, prompts=['q1', 'q2']):
             filename = os.path.join(feature_dir, str(lec), '%s.feature.crf'%q)
             
             for i, line in enumerate(codecs.open(filename, 'r', 'utf-8').readlines()):
-                if len(line.strip()) != 0 and len(line.split()) != 7:
+                if len(line.strip()) != 0 and len(line.split()) != 8:
                     print filename
                     print i, line
                     if debug: break
@@ -499,14 +499,14 @@ def train_leave_one_lecture_out(name='cv'):
     wapiti_home = '../../../tool/wapiti-1.5.0/'
     
     pattern_file = '../data/%s.pattern.txt'%name
-    model_dir = '../data/IE256/%s/model/%s/'%(system, name)
+    model_dir = '../data/%s/%s/model/%s/'%(course, system, name)
     fio.NewPath(model_dir)
     
-    feature_dir = '../data/IE256/%s/extraction/'%(system)
-    feature_cv_dir = '../data/IE256/%s/extraction/%s/'%(system, name)
+    feature_dir = '../data/%s/%s/extraction/'%(course, system)
+    feature_cv_dir = '../data/%s/%s/extraction/%s/'%(course, system, name)
     fio.NewPath(feature_cv_dir)
     
-    outputdir = '../data/IE256/%s/extraction/%s_output/'%(system, name)
+    outputdir = '../data/%s/%s/extraction/%s_output/'%(course, system, name)
     fio.NewPath(outputdir)
     
     lectures = annotation.Lectures
@@ -552,9 +552,9 @@ def train_leave_one_lecture_out(name='cv'):
     file_util.save_dict2json(dict, class_index_dict_file)
 
 def train_leave_one_lecture_out_NP(name='cv'):
-    feature_dir = '../data/IE256/%s/extraction/'%(system)
+    feature_dir = '../data/%s/%s/extraction/'%(course, system)
     
-    outputdir = '../data/IE256/%s/extraction/%s_output/'%(system, name)
+    outputdir = '../data/%s/%s/extraction/%s_output/'%(course, system, name)
     fio.NewPath(outputdir)
     
     lectures = annotation.Lectures
@@ -579,8 +579,6 @@ def train_leave_one_lecture_out_NP(name='cv'):
     file_util.save_dict2json(dict, class_index_dict_file)
     
 if __name__ == '__main__':
-    
-    #extractVocab(annotation.anotators, '../data/IE256/vocab.json')
     #exit(-1)
     
     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
@@ -595,16 +593,18 @@ if __name__ == '__main__':
     empty = sys.argv[5]
     
     excelfile = "../data/CourseMIRROR/reflections.json"
-            
+    
+    #extractVocab(annotation.anotators, '../data/%s/vocab.json'%course)
+    
     extractiondir = "../data/"+course+"/"+system+"/extraction/"
     fio.NewPath(extractiondir)
     
-    class_index_dict_file = '../data/IE256/class_dict.json'
+    class_index_dict_file = '../data/%s/class_dict.json'%course
     
     if method == 'NP':
         extractPhraseFromSyntax(extractiondir, annotation.anotators)
         train_leave_one_lecture_out_NP('all')
-        
+         
     elif method == 'annotator1':
         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 0, empty)        
     elif method == 'annotator2':
@@ -614,8 +614,7 @@ if __name__ == '__main__':
     elif method == 'intersect':
         extractPhraseFeatureFromIntersect(extractiondir, annotation.anotators, empty)
     elif method == 'combine':
-        #extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
-        pass
+        extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
     print "done"
      
     if method != 'NP':
