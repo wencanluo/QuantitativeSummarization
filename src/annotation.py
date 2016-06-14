@@ -5,14 +5,30 @@ import json
 from _codecs import decode
 from numpy import rank
 
-Lectures = [x for x in range(14, 26) if x != 22]
-AllLectures = [x for x in range(3, 26) if x != 22]
-PrefrenceLectures = [3, 4] + [x for x in range(10, 26) if x != 22]
+g_cid = 'IE256_2016'
 
-datadir = "../data/IE256/"
-anotators = ['Youngmin', 'Trevor']
-anotator_dict = {'Youngmin':0, 
-                 'Trevor':1}
+if g_cid == 'IE256':
+    doc_prefix = '_IE256_Lecture_'
+    Lectures = [x for x in range(14, 26) if x != 22]
+    AllLectures = [x for x in range(3, 26) if x != 22]
+    PrefrenceLectures = [3, 4] + [x for x in range(10, 26) if x != 22]
+    
+    datadir = "../data/IE256/"
+    anotators = ['Youngmin', 'Trevor']
+    anotator_dict = {'Youngmin':0, 
+                     'Trevor':1}
+
+elif g_cid == 'IE256_2016':
+    doc_prefix = '_Lecture_'
+    Lectures = [x for x in range(3, 27)]
+    AllLectures = [x for x in range(3, 27)]
+    PrefrenceLectures = [x for x in range(3, 27)]
+    
+    datadir = "../data/IE256_2016/"
+    anotators = ['Waiwood', 'Wang']
+    anotator_dict = {'Waiwood':0, 
+                     'Wang':1}
+
 summarization_methods = ['Phrase', 'Abstract', 'Extractive']
 
 prompt_dict = {'q1':0,
@@ -29,12 +45,13 @@ prompt_words = {
                 }
                
 def get_name(lec, anotator):
-    return anotator + '_IE256_Lecture_' + str(lec) + '_Completed'
+    return anotator + doc_prefix + str(lec) + '_Completed'
     
 def generate_all_files(datadir, extension, anotators=anotators, lectures = AllLectures):
     for annotator in anotators:
         for lec in lectures:
-            filename = datadir + annotator + '_IE256_Lecture_' + str(lec) + '_Completed' + extension
+            filename = datadir + annotator + doc_prefix + str(lec) + '_Completed' + extension
+            
             assert(fio.IsExist(filename))
             
             yield filename, lec, annotator
@@ -43,7 +60,7 @@ def generate_all_files_by_annotators(datadir, extension, anotators=anotators, le
     for lec in lectures:
         docs = []
         for annotator in anotators:
-            filename = datadir + annotator + '_IE256_Lecture_' + str(lec) + '_Completed' + extension
+            filename = datadir + annotator + doc_prefix + str(lec) + '_Completed' + extension
             assert(fio.IsExist(filename))
             
             docs.append( (filename, lec, annotator) )
@@ -74,7 +91,7 @@ class Task:
                 value.append(g.group(1))
         
         if len(value) != 6:
-            print self.filename
+            print "extract_finish_time", self.filename
             
         assert(len(value) == 6)
         self.finish_time = value
@@ -92,7 +109,7 @@ class Task:
                 value.append(g.group(1))
         
         if len(value) != 2:
-            print self.filename
+            print "extract_prompts", self.filename
             
         assert(len(value) == 2)
         self.prompts = value
@@ -139,7 +156,7 @@ class Task:
               
             if state == 3:
                 if len(row) != 3:
-                    print self.filename, row
+                    print "extract_responses", self.filename, row
                 body.append(row)
                 row = []
                 state = 0
@@ -177,7 +194,7 @@ class Task:
               
             if state == 3:
                 if len(row) != 3:
-                    print self.filename, row
+                    print "extract_responses2", self.filename, row
                     
                 body.append(row)
                 row = []
@@ -198,7 +215,7 @@ class Task:
                 value.append(g.group(1))
         
         if len(value) != 6:
-            print self.filename
+            print "extract_task_names", self.filename
             
         assert(len(value) == 6)
         self.task_names = value
@@ -283,7 +300,7 @@ class Task:
                     if 'summary' not in dict: dict['summary'] = []
                     
                     if len(row) != 3:
-                        print self.filename
+                        print "extract_task_anntation", self.filename
                         
                     dict['summary'].append(row)
                     row = []
@@ -305,7 +322,7 @@ class Task:
                     values.append(g.group(1))
         
         if len(values) < 1:
-            print self.filename
+            print "extract_preferece", self.filename
                     
         if len(values) == 1:
             values.append(values[0])
@@ -504,7 +521,7 @@ class Task:
             for sentence_id in task['summary']:
                 student_response = responses[int(sentence_id)-1]
                 if sentence_id != student_response['sentence_id']:
-                    print self.filename, sentence_id, student_response, 
+                    print "get_summary_text", self.filename, sentence_id, student_response, 
                 assert(sentence_id == student_response['sentence_id'])
                 sentence = student_response['response']
                 summaries.append(sentence)
@@ -538,7 +555,7 @@ class Task:
                 util.datatime2seconds(util.str2dt(task['start_time']))
             
             if dt < 0:
-                print self.filename
+                print "get_task_times", self.filename
                 
             N[i] = dt
         

@@ -63,6 +63,7 @@ def getShallowSummary(excelfile, folder, clusterdir, K=30, method=None, similari
             print weightfile
             
             if not fio.IsExist(cluster_output):
+            #if True:
                 print "clustering"
                 phraseClusteringKmedoid.getPhraseClusterPhrase(phrasefile, weightfile, cluster_output, ratio, method=method)
             if not fio.IsExist(cluster_output): continue

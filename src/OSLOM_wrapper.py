@@ -29,3 +29,12 @@ class OSLOM:
             communites.append(nodes)
         
         return communites
+
+if __name__ == '__main__':
+    
+    input = '../data/IE256/QPS_NP/phrase/21/q1.syntax.svm.net.dat_oslo_files/tp'
+    
+    oslom = OSLOM()
+    
+    print oslom.readgraph_partitions(input)
+    

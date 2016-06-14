@@ -138,56 +138,56 @@ class CourseMIRROR:
         max_lecture = self.get_max_lecture_num(cid)
         print "max_lecture", max_lecture
         
-#         #get reflections
-#         reflections = self.get_reflections(cid)
-#         jsonfile = '../data/CourseMIRROR/reflections.json' 
-#         with open(jsonfile, 'w') as outfile:
-#             json.dump(reflections, outfile, encoding='utf-8', indent=2)
-#           
-#         #get lectures
-#         lectures = self.get_lectures(cid)
-#         jsonfile = '../data/CourseMIRROR/lectures.json' 
-#         with open(jsonfile, 'w') as outfile:
-#             json.dump(lectures, outfile, encoding='utf-8', indent=2)
-#           
-#         self.N = len(reflections['results'])
-#         print "total number of reflections:", self.N
-#            
-#         if self.N == self.old_N: #no need to summary
-#             return
-#            
-#         self.old_N = self.N
-#           
-#         #run senna
-#         os.system('python CourseMirror_Survey.py ' + str(cid) + ' ' +  str(max_lecture))
-#             
-#         cmd = 'cmd /C "runSennaCourseMirror.bat '+str(cid)+ ' ' + str(max_lecture) + '"'
-#         os.system(cmd)
-#            
-#         cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
-#         os.system(cmd)
-#                      
-#         #     . get PhraseMead input (CourseMirror_MeadPhrase.py)
-#         cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
-#         print cmd
-#         os.system(cmd)
-#               
-#         olddir = os.path.dirname(os.path.realpath(__file__))
-#              
-#         #     . get PhraseMead output
-#         meaddir = global_params.meaddir
-#         cmd = './get_mead_summary_phrase_qps.sh ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system)
-#         os.chdir(meaddir)
-#         retcode = subprocess.call([cmd], shell=True)
-#         print retcode
-#         subprocess.call("exit 1", shell=True)
-#               
-#         os.chdir(olddir)
+        #get reflections
+        reflections = self.get_reflections(cid)
+        jsonfile = '../data/CourseMIRROR/reflections.json' 
+        with open(jsonfile, 'w') as outfile:
+            json.dump(reflections, outfile, encoding='utf-8', indent=2)
+           
+        #get lectures
+        lectures = self.get_lectures(cid)
+        jsonfile = '../data/CourseMIRROR/lectures.json' 
+        with open(jsonfile, 'w') as outfile:
+            json.dump(lectures, outfile, encoding='utf-8', indent=2)
+           
+        self.N = len(reflections['results'])
+        print "total number of reflections:", self.N
+            
+        if self.N == self.old_N: #no need to summary
+            return
+            
+        self.old_N = self.N
+           
+        #run senna
+        os.system('python CourseMirror_Survey.py ' + str(cid) + ' ' +  str(max_lecture))
+             
+        cmd = 'cmd /C "runSennaCourseMirror.bat '+str(cid)+ ' ' + str(max_lecture) + '"'
+        os.system(cmd)
+            
+        cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
+        os.system(cmd)
+                      
+        #     . get PhraseMead input (CourseMirror_MeadPhrase.py)
+        cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
+        print cmd
+        os.system(cmd)
+               
+        olddir = os.path.dirname(os.path.realpath(__file__))
+              
+        #     . get PhraseMead output
+        meaddir = global_params.meaddir
+        cmd = './get_mead_summary_phrase_qps.sh ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system)
+        os.chdir(meaddir)
+        retcode = subprocess.call([cmd], shell=True)
+        print retcode
+        subprocess.call("exit 1", shell=True)
+               
+        os.chdir(olddir)
         #     . get LSA results (CourseMirrorphrase2phraseSimilarity.java)
         #cmd = 'cmd /C "runLSA.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
-#         cmd = 'cmd /C "runLSA_All.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
-#         os.system(cmd)
-#              
+        cmd = 'cmd /C "runLSA_All.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
+        os.system(cmd)
+              
         # get ClusterARank (CourseMirror_phraseClusteringbasedShallowSummaryKmedoid-New-Malformed-LexRank.py)
         cmd = "python CourseMirror_ClusterARank.py %s %d %s %s %s" %(cid, max_lecture, self.system, self.method, self.similarity)
         print cmd
@@ -206,8 +206,13 @@ def gather_rouge(output):
     
     #output = '../data/IE256/result.rouge.txt'
     
-    models = ['QPS_NP', 'QPS_A1_N', 'QPS_A2_N', 'QPS_union', 'QPS_intersect', 'QPS_combine']
-    methods = ['rouge_crf_svm', 'rouge_crf_svr', 'rouge_crf_ct.svm.default', 'rouge_crf_ct.svr.default', ]
+    models = [#'QPS_NP', 
+              'QPS_A1_N', 'QPS_A2_N', 'QPS_union', 'QPS_intersect', 'QPS_combine']
+    methods = ['rouge_crf_svm', 
+               'rouge_crf_svr', 
+               'rouge_crf_ct.svm.default', 
+               'rouge_crf_ct.svr.default', 
+               ]
     
     Header = ['method', 'model', 'R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'RSU4-P', 'RSU4-F',]
     
@@ -273,47 +278,50 @@ if __name__ == '__main__':
 #     system = 'oracle_intersect'
 #     method = 'intersect'
     
-    oslom_parms = '2'# -cp 0.1
+#     oslom_parms = '1'# -cp 0.1
     
-    cmd = 'python QPS_community_detection.py %s'%(oslom_parms)
-    os.system(cmd)
+#     cmd = 'python QPS_community_detection.py %s'%(oslom_parms)
+#     os.system(cmd)
     
     for system, method, similarity in [
-#                                        ('oracle_annotator_1', 'annotator1', 'oracle'),
-#                                        ('oracle_annotator_2', 'annotator2', 'oracle'),
+                                        ('oracle_annotator_1', 'annotator1', 'oracle'),
+#                                         ('oracle_annotator_2', 'annotator2', 'oracle'),
 #                                        ('QPS_A1_N', 'crf', 'optimumComparerLSATasa'),
 #                                        ('QPS_A2_N', 'crf', 'optimumComparerLSATasa'),
 #                                        ('QPS_NP', 'crf', 'optimumComparerLSATasa'),
 #                                        ('QPS_union', 'crf', 'optimumComparerLSATasa'),
 #                                        ('QPS_intersect', 'crf', 'optimumComparerLSATasa'),
 #                                        ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
+
 #                                         ('QPS_A1_N', 'crf', 'svr'),
 #                                         ('QPS_A2_N', 'crf', 'svr'),
-#                                         ('QPS_NP', 'syntax', 'svr'),
+#                                         #('QPS_NP', 'syntax', 'svr'),
 #                                         ('QPS_union', 'crf', 'svr'),
 #                                         ('QPS_intersect', 'crf', 'svr'),
 #                                         ('QPS_combine', 'crf', 'svr'),
-#                                         
+#                                          
 #                                         ('QPS_A1_N', 'crf', 'svm'),
 #                                         ('QPS_A2_N', 'crf', 'svm'),
-#                                         ('QPS_NP', 'syntax', 'svm'),
+#                                         #('QPS_NP', 'syntax', 'svm'),
 #                                         ('QPS_union', 'crf', 'svm'),
 #                                         ('QPS_intersect', 'crf', 'svm'),
 #                                         ('QPS_combine', 'crf', 'svm'),
 
-                                        ('QPS_A1_N', 'crf', 'ct.svr.default'),
-                                        ('QPS_A2_N', 'crf', 'ct.svr.default'),
-#                                         ('QPS_NP', 'crf', 'ct.svr.default'),
-                                        ('QPS_union', 'crf', 'ct.svr.default'),
-                                        ('QPS_intersect', 'crf', 'ct.svr.default'),
-                                        ('QPS_combine', 'crf', 'ct.svr.default'),
-                                          
-                                        ('QPS_A1_N', 'crf', 'ct.svm.default'),
-                                        ('QPS_A2_N', 'crf', 'ct.svm.default'),
-#                                         ('QPS_NP', 'crf', 'ct.svm.default'),
-                                        ('QPS_union', 'crf', 'ct.svm.default'),
-                                        ('QPS_intersect', 'crf', 'ct.svm.default'),
-                                        ('QPS_combine', 'crf', 'ct.svm.default'),
+#                                         ('QPS_A1_N', 'crf', 'ct.svr.default'),
+#                                         ('QPS_A2_N', 'crf', 'ct.svr.default'),
+#                                         #('QPS_NP', 'syntax', 'ct.svr.default'),
+#                                         ('QPS_union', 'crf', 'ct.svr.default'),
+#                                         ('QPS_intersect', 'crf', 'ct.svr.default'),
+#                                         ('QPS_combine', 'crf', 'ct.svr.default'),
+# #                                           
+#                                         ('QPS_A1_N', 'crf', 'ct.svm.default'),
+#                                         ('QPS_A2_N', 'crf', 'ct.svm.default'),
+#                                         ('QPS_NP', 'syntax', 'ct.svm.default'),
+#                                         ('QPS_union', 'crf', 'ct.svm.default'),
+#                                         ('QPS_intersect', 'crf', 'ct.svm.default'),
+#                                         ('QPS_combine', 'crf', 'ct.svm.default'),
+
+                                        ('QPS_NP', 'syntax', 'ct.lsa.default'),
                                        ]:
     
         course_mirror_server = CourseMIRROR(config.get('Parse', 'PARSE_APP_ID'), 
@@ -327,7 +335,7 @@ if __name__ == '__main__':
         
         course_mirror_server.run(cid, summarylastlecture=config.getint('course', 'summarylastlecture'))
     
-    output = '../data/IE256/result.rouge.%s.txt'%oslom_parms
-    gather_rouge(output)
-    
+    #output = '../data/IE256/result.rouge.%s.txt'%oslom_parms
+    #gather_rouge(output)
+#     
     

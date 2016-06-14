@@ -37,6 +37,47 @@ net_exe = '.net.dat'
 
 import QPS_simlearning
 
+def writegraph_leave_one_lecture_out_lsa(model_dir, phrasedir, modelname='lsa'):    
+    lectures = annotation.Lectures
+    
+    for i, lec in enumerate(lectures):
+        test = [lec]
+        
+        path = os.path.join(phrasedir, str(lec))
+        
+        for q in ['q1', 'q2']:
+            #write the output
+            phrasefile = os.path.join(path, "%s.%s.key"%(q, method))
+            phrases = fio.LoadList(phrasefile)
+            
+            similarties_results = os.path.join(path, "%s.%s.optimumComparerLSATasa"%(q, method))
+            
+            simhead, simbody = fio.ReadMatrix(similarties_results, hasHead=True)
+            
+            assert(len(simhead) == len(phrases))
+            
+            body = []
+            for i, p1 in enumerate(phrases):
+                for j, p2 in enumerate(phrases):
+                    if j <= i: 
+                        continue #undirect graph
+                    
+                    score = simbody[i][j]
+                    
+                    score = float(score) if score != 'NaN' else 0.0
+                    
+                    #if score == 0.0: score = 0.000001
+                    #if score < 0.5: continue
+                    if score == 0.0: continue
+                    
+                    #row = [i, j, '%f'%score]
+                    row = [i, j]
+                    
+                    body.append(row)
+            
+            output = os.path.join(path, "%s.%s.%s%s"%(q, method,modelname,net_exe))
+            fio.WriteMatrix(output, body)
+            
 def writegraph_leave_one_lecture_out(model_dir, phrasedir, modelname='svr'):    
     sim_extractor = Similarity()
     allfeatures = sorted(sim_extractor.features.keys())
@@ -95,11 +136,14 @@ def solvegraph_leave_one_lecture_out(phrasedir, modelname='svr'):
     
     oslom = OSLOM(oslom_parms)
     
-    if modelname=='svr':
-        weighted = True
-        undirect = True
-    else:
+    if modelname=='svm':
         weighted = False
+        undirect = True
+    elif modelname=='lsa':
+        weighted = False
+        undirect = True
+    else: #svr, lsa
+        weighted = True
         undirect = True
                 
     for i, lec in enumerate(lectures):
@@ -116,11 +160,23 @@ def solvegraph_leave_one_lecture_out(phrasedir, modelname='svr'):
 
 def write_communite_to_clusters(communites, phrases, output):
     body = []
+    
+    dict = {}
     for i, community in enumerate(communites):
         for node in community:
             row = [phrases[node], i+1]
             body.append(row)
+            dict[node] = 1
     
+#     k = len(communites)
+#     #write phrases that are not in any communities
+#     for i in range(len(phrases)):
+#         if i in dict: continue
+#         
+#         row = [phrases[i], k]
+#         k += 1
+#         body.append(row)
+        
     fio.WriteMatrix(output, body, None)
         
 def readgraph_leave_one_lecture_out(phrasedir, modelname='svr'):    
@@ -146,6 +202,7 @@ def readgraph_leave_one_lecture_out(phrasedir, modelname='svr'):
             netgraphfile = os.path.join(path, "%s.%s.%s%s_oslo_files"%(q, method,modelname,net_exe), 'tp')
             
             if not fio.IsExist(netgraphfile):#no communities
+                print netgraphfile
                 communites = [[x] for x in range(len(phrases))]
             else:
                 communites = oslom.readgraph_partitions(netgraphfile)
@@ -167,20 +224,23 @@ if __name__ == '__main__':
     if oslom_parms == '0':
         oslom_parms = ''
     elif oslom_parms == '1':
-        oslom_parms = '-t 0.9'# -cp 0.1
+        #oslom_parms = '-t 1.0 -singlet -r 30'# -cp 0.1
+        oslom_parms = '-t 1.0 -seed 0 -singlet -r 30'# -cp 0.1
+        #oslom_parms = '-t 1.0'# -cp 0.1
     elif oslom_parms == '2':
         oslom_parms = '-t 0.9 -infomap 3'# -cp 0.1
     elif oslom_parms == '3':
         oslom_parms = '-t 0.9 -infomap 3 -copra 2'# -cp 0.1
-        
-    for modelname in ['svr', 'svm']:    #'svm', 
+    
+    for modelname in ['lsa']:#'svm', 'svr',  
+    #for modelname in ['svr', 'svm']:    #'svm', 
         for system, method in [
-                                ('QPS_A1_N', 'crf'),
-                                ('QPS_A2_N', 'crf'),
+#                                 ('QPS_A1_N', 'crf'),
+#                                 ('QPS_A2_N', 'crf'),
                                 ('QPS_NP', 'syntax'),
-                                ('QPS_union', 'crf'),
-                                ('QPS_intersect', 'crf'),
-                                ('QPS_combine', 'crf'),
+#                                 ('QPS_union', 'crf'),
+#                                 ('QPS_intersect', 'crf'),
+#                                 ('QPS_combine', 'crf'),
                             ]:
             phrasedir = "../data/"+course+"/"+system+"/phrase/"
             
@@ -190,8 +250,13 @@ if __name__ == '__main__':
                 model_dir = "../data/"+course+"/simlearning/"
             else:
                 model_dir = "../data/"+course+"/simlearning/svm/"
-            
-            #writegraph_leave_one_lecture_out(model_dir, phrasedir, modelname=modelname)
+#             
+            if modelname == 'lsa':
+                writegraph_leave_one_lecture_out_lsa(model_dir, phrasedir, modelname=modelname)
+            else:
+                writegraph_leave_one_lecture_out(model_dir, phrasedir, modelname=modelname)
+#                 
             solvegraph_leave_one_lecture_out(phrasedir, modelname=modelname)
+#             
             readgraph_leave_one_lecture_out(phrasedir, modelname=modelname)
         

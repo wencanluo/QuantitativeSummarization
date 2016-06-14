@@ -270,7 +270,9 @@ def train_leave_one_lecture_out(model_dir, name='simlearn_cv'):
     sim_extractor = Similarity()
     allfeatures = sorted(sim_extractor.features.keys())
     
-    for k in range(len(allfeatures)+1):
+    if True:
+        k = len(allfeatures)
+    #for k in range(len(allfeatures)+1):
         #features = allfeatures#['WordEmbedding']
         
         if k == len(allfeatures):#use all features
@@ -327,13 +329,17 @@ def train_leave_one_lecture_out_svm(model_dir, name='simlearn_cv'):
     sim_extractor = Similarity()
     allfeatures = sorted(sim_extractor.features.keys())
     
-    for k in range(len(allfeatures)+1):
+    #for k in range(len(allfeatures)+1):
+    if True:
+        k = len(allfeatures)
+        
         #features = allfeatures#['WordEmbedding']
         
         if k == len(allfeatures):#use all features
             features = allfeatures
         else:
             features = [allfeatures[k]]
+            #features = allfeatures[0:k] + allfeatures[k+1:]
         
         name = '_'.join(features)
         
@@ -431,6 +437,7 @@ def gather_performance(output):
             features = allfeatures
         else:
             features = [allfeatures[k]]
+            #features = allfeatures[0:k] + allfeatures[k+1:]
         
         name = '_'.join(features)
         
@@ -449,26 +456,58 @@ def gather_performance(output):
     
     fio.WriteMatrix(output, allbody, allhead)
 
+def check_stopword():
+    from CourseMirror_Survey import stopwords
+    
+    vocab = fio.LoadDictJson(global_params.vocab)
+    
+    for word, count in vocab.items():
+        if count < 5: continue
+        
+        if word in stopwords:
+            print word, '\t', count
+    
         
 if __name__ == '__main__':
-#     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
+    check_stopword()
+    exit(-1)
+    
     course = "IE256"
+    
+#     model_dir = "../data/"+course+"/simlearning/svm/"
+# #     fio.NewPath(model_dir)
+#     train_leave_one_lecture_out_svm(model_dir)
+#     
+#     model_dir = "../data/"+course+"/simlearning/"
+# #     fio.NewPath(model_dir)
+#     train_leave_one_lecture_out(model_dir)
+#     
+#        
+# #     all_performance = "../data/"+course+"/simlearning/svm/out.txt"
+# #     gather_performance(all_performance)
+#       
+#     exit(-1)
+    
+#     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
     for system, method in [
-#                            ('QPS_A1_N', 'crf'),
-#                            ('QPS_A2_N', 'crf'),
-                             ('QPS_NP', 'syntax'),
-#                            ('QPS_union', 'crf'),
-#                            ('QPS_intersect', 'crf'),
-#                            ('QPS_combine', 'crf'),
+                            ('QPS_NP', 'syntax'),
+                            ('QPS_A1_N', 'crf'),
+                            ('QPS_A2_N', 'crf'),
+                            ('QPS_union', 'crf'),
+                            ('QPS_intersect', 'crf'),
+                            ('QPS_combine', 'crf'),
                            ]:
         phrasedir = "../data/"+course+"/"+system+"/phrase/"
-          
-        #extractPhrasePaireFeature(phrasedir)
-          
+              
+#         extractPhrasePaireFeature(phrasedir)
+              
+        #model_dir = "../data/"+course+"/simlearning/svm"
+        #predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svm')
+        
         model_dir = "../data/"+course+"/simlearning/"
-          
         predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svr')
-          
+        
+# #           
     exit(-1)
     
     debug = False
@@ -485,24 +524,20 @@ if __name__ == '__main__':
     
     class_index_dict_file = '../data/IE256/class_dict.json'
     
-#     if method == 'annotator1':
-#         extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[0:1], 0)        
-#     elif method == 'annotator2':
-#         extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[-1:], 1)
+    if method == 'annotator1':
+        extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[0:1], 0)        
+    elif method == 'annotator2':
+        extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[-1:], 1)
 #      
     #correlation_analysis()
 #     correlation_analysis_noduplicate()
     
-    model_dir = "../data/"+course+"/simlearning/svm/"
-    #train_leave_one_lecture_out(model_dir)
+#     model_dir = "../data/"+course+"/simlearning/"
+#     train_leave_one_lecture_out(model_dir)
     
-#     fio.NewPath(model_dir)
-#     train_leave_one_lecture_out_svm(model_dir)
+
     
-#     all_performance = "../data/"+course+"/simlearning/svm/out.txt"
-#     gather_performance(all_performance)
-    
-    extractPhrasePaireFeature(phrasedir)
+#     extractPhrasePaireFeature(phrasedir)
     
     print "done"
     

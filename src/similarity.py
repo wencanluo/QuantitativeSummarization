@@ -5,8 +5,10 @@ import json
 import os
 import fio
 import numpy as np
+import porter
 
 import global_params
+from CourseMirror_Survey import stopwords
 
 class Similarity:
     def __init__(self, prefix=""):
@@ -77,6 +79,44 @@ class Similarity:
         if score == 'NaN': return 0.0
         return float(score)
     
+    def getOverlap(self, dict1, dict2, removedstop=True):
+        count = 0
+        for key in dict1.keys():
+            if removedstop:
+                if key in stopwords: continue
+            
+            if key in dict2:
+                count = count + 1
+        return count
+
+    def getStemDict(self, words, stem=True, removedstop=True):
+        dict = {}
+        
+        if stem:
+            words = porter.getStemming(words)
+            
+        for token in words.split():
+            if removedstop:
+                if token in stopwords: continue
+            
+            dict[token] = 1
+            
+        return dict
+
+    def LexicalOverlap_Stop(self, p1, p2, name='LexicalOverlap'):
+        removedstop = True
+        
+        d1 = self.getStemDict(p1, False, removedstop)
+        d2 = self.getStemDict(p2, False, removedstop)
+        
+        overlap_count = self.getOverlap(d1, d2, removedstop)
+        
+        if len(d1) == 0 or len(d2) == 0: return 0.0
+        
+        score = 2.0*overlap_count/(len(d1)+len(d2))
+        
+        return score
+    
     def Cosine(self, p1, p2):
         return Cosin.compare(p1, p2)
     
@@ -101,11 +141,19 @@ class Similarity:
         if score == 'NaN': return 0.0
         return float(score)
     
-    def ROUGE(self, p1, p2):
+    def ROUGE(self, p1, p2, removedstop=False):
         metric = 'R1-F'
         
-        ref = [p1]
-        TmpSum = [p2]
+        if removedstop:
+            t1 = [token for token in p1.split() if token not in stopwords]
+            t2 = [token for token in p2.split() if token not in stopwords]
+        else:
+            t1 = p1.split()
+            t2 = p2.split()
+        
+        
+        ref = [' '.join(t1)]
+        TmpSum = [' '.join(t2)]
         
         cacheKey = OracleExperiment.getKey(ref, TmpSum)
         if cacheKey in self.Cache:
@@ -118,9 +166,13 @@ class Similarity:
         
         return score
     
-    def WordEmbedding(self, p1, p2):
-        t1 = p1.split()
-        t2 = p2.split()
+    def WordEmbedding(self, p1, p2, removedstop=False):
+        if removedstop:
+            t1 = [token for token in p1.split() if token not in stopwords]
+            t2 = [token for token in p2.split() if token not in stopwords]
+        else:
+            t1 = p1.split()
+            t2 = p2.split()
         
         if len(t1) == 0 or len(t2) == 0: return 0.0
         
@@ -155,5 +207,11 @@ if __name__ == '__main__':
     
     s = Similarity()
     print s.WordEmbedding(p1, p2)
-    print s.WordEmbedding("easy", "hard")
+    print s.ROUGE(p1, p2)
+    
+    #print s.WordEmbedding("the easy", "the hard")
+    #print s.WordEmbedding("easy", "hard")
+    
+    #print s.LexicalOverlap("the hypothesis", "the hypothesis")
+    
     
