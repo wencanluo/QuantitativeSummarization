@@ -558,8 +558,13 @@ def train_leave_one_lecture_out(name='cv'):
                 cmd = 'cp %s %s'%(test_filename_old, test_filename)
                 os.system(cmd)
             else:
-                combine_files(feature_dir, test, test_filename, prompts=[q])
-                #pass
+                
+                if method == 'combine':
+                    test_filename_old = test_filename.replace('_combine', '_A1')
+                    cmd = 'cp %s %s'%(test_filename_old, test_filename)
+                    os.system(cmd)
+                else:
+                    combine_files(feature_dir, test, test_filename, prompts=[q])
             
             crf.predict(test_filename, model_file, output_file)
         
@@ -617,6 +622,7 @@ if __name__ == '__main__':
     
     class_index_dict_file = '../data/%s/class_dict.json'%course
     
+    '''
     if method == 'NP':
         extractPhraseFromSyntax(extractiondir, annotation.anotators)
         train_leave_one_lecture_out_NP('all')
@@ -632,6 +638,7 @@ if __name__ == '__main__':
     elif method == 'combine':
         extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
     print "done"
-     
+    '''
+    
     if method != 'NP':
         train_leave_one_lecture_out('all')
