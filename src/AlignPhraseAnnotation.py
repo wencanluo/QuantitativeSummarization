@@ -70,7 +70,8 @@ class AlignPhraseAnnotation:
         
         assert(len(tokens) == len(tags))
         
-        raw_colors = [int(token[-2]) if token.endswith('>') else -1 for token in tokens]
+        #print tokens
+        raw_colors = [int(token[-2]) if token.endswith('>') and tag != 'O' else -1 for token, tag in zip(tokens, tags)]
         
         colors = []
         

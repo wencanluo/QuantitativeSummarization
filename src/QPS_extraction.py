@@ -409,6 +409,10 @@ def extractPhraseFeatureFromCombine(extractiondir, annotators, empty='N'):
         assert(lec0 == lec1)
         lec = lec0
         
+        #print lec
+        
+        #if lec != 17: continue
+        
         #load tasks
         task0 = annotation.Task()
         task0.loadjson(doc0)
@@ -420,6 +424,9 @@ def extractPhraseFeatureFromCombine(extractiondir, annotators, empty='N'):
         fio.NewPath(path)
         
         for prompt in ['q1', 'q2']:
+            
+            #if prompt != 'q2': continue
+            
             filename = path + prompt + '.feature.crf'
             print filename
             
