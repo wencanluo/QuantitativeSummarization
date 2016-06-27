@@ -109,6 +109,8 @@ def extractPhraseFromSyntax(extractiondir, annotators):
                 tokens = [token.lower() for token in d['response']]
                 tags = d['tags'][0]
                 
+                colors = d['colors']
+                
                 n_tokens = []
                 n_tags = []
                 
@@ -139,7 +141,11 @@ def extractPhraseFromSyntax(extractiondir, annotators):
                 
                 for i, tag in enumerate(tags):
                     body[i].append(tag)
-                    
+                
+                for color in colors:
+                    for i, tag in enumerate(tags):
+                        body[i].append(str(color[i]))
+                         
                 #extract the NP tags
                 psg_tags = getSennaPSGtags(tokens)
                 for i, tag in enumerate(psg_tags):
