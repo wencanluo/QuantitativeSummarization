@@ -240,7 +240,31 @@ def extractPhraseFromCRF(phrasedir, systemdir):
                     
             fio.SaveList(phrases, filename)
 
-           
+def extractPhraseFromCRFWithColor(phrasedir, systemdir):
+    crf_reader = CRF()
+    aligner = AlignPhraseAnnotation()
+    
+    lectures = annotation.Lectures
+    for i, lec in enumerate(lectures):
+        path = phrasedir + str(lec)+ '/'
+        fio.NewPath(path)
+        
+        for prompt in ['q1', 'q2']:
+            filename = path + prompt + '.' + method + '.key'
+            phrases = []
+            colors = []
+            
+            crf_file = os.path.join(systemdir, 'extraction', 'all_output', 'test_%i_%s.out'%(i, prompt))
+            for tokens, tags, color0, color1 in crf_reader.read_file_generator_index(crf_file, [0, -1, -3, -2]):
+                for phrase, colors in aligner.get_phrase_with_colors(tokens, tags, [color0, color1]):
+                    phrases.append(phrase.lower())
+                    colors.append(colors)
+            
+            fio.SaveList(phrases, filename)
+            
+            filename = path + prompt + '.' + method + '.key.color'
+            fio.SaveDict2Json(colors, filename)
+                
 if __name__ == '__main__':
     course = sys.argv[1]
     maxWeek = int(sys.argv[2])
@@ -271,7 +295,7 @@ if __name__ == '__main__':
     elif method == 'intersect':
         extractPhraseFromAnnotationIntersect(phrasedir, annotation.anotators)
     elif method == 'crf':
-        extractPhraseFromCRF(phrasedir, systemdir)
+        extractPhraseFromCRFWithColor(phrasedir, systemdir)
     
     print "done"
     

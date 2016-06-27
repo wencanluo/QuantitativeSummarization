@@ -74,6 +74,47 @@ class CRF(Classifier):
             
             sentence.append( tmp )
     
+    def read_file_generator_index(self, input, index=None, has_score=False):
+        '''
+        read the crf file: the first row is the token and the last row is the label
+        '''
+        data = []
+        
+        for x in index:
+            data.append([])
+        
+        score = None
+        
+        for line in codecs.open(input, "r", "utf-8"):
+            line = line.strip()
+            
+            if len(line) == 0:
+                if score:
+                    try:
+                        score = float(score)
+                    except Exception as e:
+                        score = 0
+                    yield data, score
+                else:
+                    yield data
+                
+                data = []
+                
+                continue
+            elif line[0] == '#': #score
+                score = line.split()[2]
+                continue
+                
+            tmp = line.split()
+            
+            for i, x in enumerate(index):
+                if x == -1:
+                    data[i].append(tmp[0].split(':')[-1])
+                elif x == 0:
+                    data[i].append(tmp[-1].split('/')[0])
+                else:
+                    data[i].append(tmp[x])
+            
     def read_file_generator(self, input, has_score=False):
         '''
         read the crf file: the first row is the token and the last row is the label

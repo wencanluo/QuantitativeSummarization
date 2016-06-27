@@ -200,6 +200,7 @@ def extractPhraseFeatureFromAnnotation(extractiondir, annotators, id, empty='N')
             for d in aligner.responses:
                 tokens = [token.lower() for token in d['response']]
                 tags = d['tags'][id]
+                colors = d['colors']
                 
                 n_tokens = []
                 n_tags = []
@@ -215,7 +216,7 @@ def extractPhraseFeatureFromAnnotation(extractiondir, annotators, id, empty='N')
                 tokens = n_tokens
                 tags = n_tags
                 
-                crf_feature_extractor.add_sentence((tokens, tags))
+                crf_feature_extractor.add_sentence((tokens, tags, colors))
             
             for tokens, tags in crf_feature_extractor.sentences:
                 if empty == 'Y':
@@ -224,7 +225,7 @@ def extractPhraseFeatureFromAnnotation(extractiondir, annotators, id, empty='N')
                         if tag != 'O': flag = False
                     if flag: continue
                 
-                body = crf_feature_extractor.extract_crf_features(tokens, tags, prompt)
+                body = crf_feature_extractor.extract_crf_features(tokens, tags, prompt, colors)
                 
                 for row in body:
                     fout.write(' '.join(row))
@@ -632,5 +633,5 @@ if __name__ == '__main__':
         extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
     print "done"
      
-#     if method != 'NP':
-#         train_leave_one_lecture_out('all')
+    if method != 'NP':
+        train_leave_one_lecture_out('all')
