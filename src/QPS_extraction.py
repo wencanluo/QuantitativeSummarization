@@ -136,16 +136,17 @@ def extractPhraseFromSyntax(extractiondir, annotators):
                     row.append(word)
                     body.append(row)
                 
-                #last row:
+                #add the color
+                for color in colors:
+                    for i, tag in enumerate(tags):
+                        body[i].append(str(color[i]))
+                
+                #last row:                
                 tags = [tag for tag in tags]
                 
                 for i, tag in enumerate(tags):
                     body[i].append(tag)
                 
-                for color in colors:
-                    for i, tag in enumerate(tags):
-                        body[i].append(str(color[i]))
-                         
                 #extract the NP tags
                 psg_tags = getSennaPSGtags(tokens)
                 for i, tag in enumerate(psg_tags):
