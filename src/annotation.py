@@ -5,7 +5,7 @@ import json
 from _codecs import decode
 from numpy import rank
 
-g_cid = 'IE256_2016'
+from global_params import g_cid
 
 if g_cid == 'IE256':
     doc_prefix = '_IE256_Lecture_'

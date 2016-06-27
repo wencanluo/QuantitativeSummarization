@@ -134,12 +134,14 @@ def getPhraseClusterPhrase(phrasefile, weightfile, output, ratio=None, method=No
     V = len(NPCandidates)
     if ratio == "sqrt":
         K = int(math.sqrt(V))
-    elif float(ratio) > 1:
+    elif float(ratio) >= 1:
         K = int(ratio)
     else:
         K = int(ratio*V)
     
     if K < 1: K=1
+    
+    K = min(K, V)
     
     clusterid = ClusterWrapper.KMedoidCluster(newMatrix, K)
     

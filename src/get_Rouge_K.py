@@ -5,28 +5,36 @@ import json
 import os
 from numpy import average
 import codecs
+import numpy as np
 
 tmpdir = "../data/tmp/"
 RougeHeader = ['R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'RSU4-P', 'RSU4-F',]
 RougeHeaderSplit = ['R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'RSU4-P', 'RSU4-F','R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'RSU4-P', 'RSU4-F','R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'RSU4-P', 'RSU4-F',]
 RougeNames = ['ROUGE-1','ROUGE-2', 'ROUGE-SUX']
 
+metric='R1-F'
+RIndex = RougeHeader.index(metric)
+assert(RIndex != -1)
+
 def getRouge(datadir, maxWeek, output):
     sheets = range(0, maxWeek)
     
     body = []
+    allbody = []
+    
+    #Krange = range(1, 25)
+    #Krange = range(1, 25)
+    Krange = [gK]
     
     for sheet in sheets:
         week = sheet + 1
         dir = datadir + str(week) + '/'
         
         for type in ['q1', 'q2']:
-            summary_file = dir + type + "." + 'summary'
-            print summary_file
             
-            if not fio.IsExist(summary_file): 
-                print summary_file
-                continue
+            maxS = 0
+            maxK = -1
+            maxScore = []
             
             Cache = {}
             cachefile = os.path.join(datadir, str(week), 'cache.json')
@@ -35,39 +43,70 @@ def getRouge(datadir, maxWeek, output):
                 with open(cachefile, 'r') as fin:
                     Cache = json.load(fin)
             
-            #read TA's summmary
-            refs = []
-            for i in range(2):
-                reffile = os.path.join(datadir, str(week), type + '.ref.%d' %i)
-                if not fio.IsExist(reffile):
-                    print reffile
-                    continue
-                    
-                lines = fio.ReadFile(reffile)
-                ref = [line.strip() for line in lines]
-                refs.append(ref)
+            allrow = [week]
             
-            if len(refs) == 0: continue
-              
-            lstref = refs[0] + refs[1]
-        
-            lines = fio.ReadFile(summary_file)
-            TmpSum = [line.strip() for line in lines]
-        
-            cacheKey = OracleExperiment.getKey(lstref, TmpSum)
-            if cacheKey in Cache:
-                scores = Cache[cacheKey]
-                print "Hit"
-            else:
-                print "Miss"
+            #Krange = [np.random.randint(1, 25)]
+            
+            for K in Krange:
+            
+                summary_file = dir + type + '.%d.summary'%K
+                
                 print summary_file
-                scores = OracleExperiment.getRouge_IE256(refs, TmpSum)
-                Cache[cacheKey] = scores
+                
+                if not fio.IsExist(summary_file): 
+                    print summary_file
+                    continue
+                
+                
+                
+                #read TA's summmary
+                refs = []
+                for i in range(2):
+                    reffile = os.path.join(datadir, str(week), type + '.ref.%d' %i)
+                    if not fio.IsExist(reffile):
+                        print reffile
+                        continue
+                        
+                    lines = fio.ReadFile(reffile)
+                    ref = [line.strip() for line in lines]
+                    refs.append(ref)
+                
+                if len(refs) == 0: continue
+                  
+                lstref = refs[0] + refs[1]
             
+                lines = fio.ReadFile(summary_file)
+                TmpSum = [line.strip() for line in lines]
+            
+                cacheKey = OracleExperiment.getKey(lstref, TmpSum)
+                if cacheKey in Cache:
+                    scores = Cache[cacheKey]
+                    print "Hit"
+                else:
+                    print "Miss"
+                    print summary_file
+                    scores = OracleExperiment.getRouge_IE256(refs, TmpSum)
+                    Cache[cacheKey] = scores
+                
+                s = float(scores[RIndex])
+                
+                allrow.append(s)
+                
+                if s >= maxS:
+                    maxS = s
+                    maxScore = scores
+                    maxK = K
+            
+            if maxK == -1: continue
+                
             row = [week]
-            row = row + scores
+            row = row + maxScore + [maxK]
             
             body.append(row)
+            
+            allrow.append(maxK)
+            
+            allbody.append(allrow)
         
             try:
                 fio.SaveDict2Json(Cache, cachefile)
@@ -83,6 +122,8 @@ def getRouge(datadir, maxWeek, output):
     body.append(row)
     
     fio.WriteMatrix(output, body, header)
+    
+    fio.WriteMatrix(output + '.all', allbody, ['week'] + Krange)
 
 def get_LexRankRouge():
     course = 'IE256_2016'
@@ -112,6 +153,7 @@ if __name__ == '__main__':
     maxWeek = int(sys.argv[2])
     system = sys.argv[3]
     posfix = sys.argv[4]
+    gK = int(sys.argv[5])
     
     datadir = "../data/"+course+"/"+system+ '/ClusterARank/'
     output = '../data/%s/%s/rouge_%s.txt' % (course, system, posfix)

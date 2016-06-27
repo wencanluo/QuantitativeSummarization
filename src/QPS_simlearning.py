@@ -135,9 +135,8 @@ def combine_files_test(phrasedir, lectures, features=None, prompts=['q1', 'q2'])
     return X, Y
            
 def combine_files(lectures, features=None, prompts=['q1', 'q2']):
-    
-    phrasedir1 = '../data/IE256/oracle_annotator_1/phrase/'
-    phrasedir2 = '../data/IE256/oracle_annotator_2/phrase/'
+    phrasedir1 = '../data/%s/oracle_annotator_1/phrase/'%course
+    phrasedir2 = '../data/%s/oracle_annotator_2/phrase/'%course
     
     X = []
     Y = []
@@ -171,10 +170,10 @@ def combine_files(lectures, features=None, prompts=['q1', 'q2']):
     return X, Y
 
 def correlation_analysis():
-    phrasedir1 = '../data/IE256/oracle_annotator_1/phrase/'
-    phrasedir2 = '../data/IE256/oracle_annotator_2/phrase/'
+    phrasedir1 = '../data/%s/oracle_annotator_1/phrase/'%course
+    phrasedir2 = '../data/%s/oracle_annotator_2/phrase/'%course
     
-    outdir = '../data/IE256/simlearning/'
+    outdir = '../data/%s/simlearning/'
     fio.NewPath(outdir)
     
     sim_extractor = Similarity()
@@ -214,10 +213,10 @@ def correlation_analysis():
     fio.WriteMatrix(out_correlation, body, head)
 
 def correlation_analysis_noduplicate():
-    phrasedir1 = '../data/IE256/oracle_annotator_1/phrase/'
-    phrasedir2 = '../data/IE256/oracle_annotator_2/phrase/'
+    phrasedir1 = '../data/%s/oracle_annotator_1/phrase/'%course
+    phrasedir2 = '../data/%s/oracle_annotator_2/phrase/'%course
     
-    outdir = '../data/IE256/simlearning/'
+    outdir = '../data/%s/simlearning/'%course
     fio.NewPath(outdir)
     
     sim_extractor = Similarity()
@@ -315,7 +314,7 @@ def train_leave_one_lecture_out(model_dir, name='simlearn_cv'):
                 
                 MSE.append([lec, q, mse])
         
-        output = '../data/IE256/simlearning.cv.%s.txt'%name
+        output = '../data/%s/simlearning.cv.%s.txt'%(course, name)
         
         fio.WriteMatrix(output, MSE, header=['lec', 'prompt', 'MSE'])
 
@@ -378,7 +377,7 @@ def train_leave_one_lecture_out_svm(model_dir, name='simlearn_cv'):
                 
                 MSE.append([lec, q, accuracy] + [prf[0], prf[1], prf[2]])
         
-        output = '../data/IE256/simlearning.cv.svm.%s.txt'%name
+        output = '../data/%s/simlearning.cv.svm.%s.txt'%(course, name)
         
         fio.WriteMatrix(output, MSE, header=['lec', 'prompt', 'accuracy', 'precision', 'recall', 'f-score'])
 
@@ -441,7 +440,7 @@ def gather_performance(output):
         
         name = '_'.join(features)
         
-        resultfile = '../data/IE256/simlearning.cv.svm.%s.txt'%name
+        resultfile = '../data/%s/simlearning.cv.svm.%s.txt'%(course, name)
         
         head, body = fio.ReadMatrix(resultfile, hasHead=True)
         
@@ -469,47 +468,49 @@ def check_stopword():
     
         
 if __name__ == '__main__':
-    check_stopword()
-    exit(-1)
-    
-    course = "IE256"
-    
-#     model_dir = "../data/"+course+"/simlearning/svm/"
-# #     fio.NewPath(model_dir)
-#     train_leave_one_lecture_out_svm(model_dir)
-#     
-#     model_dir = "../data/"+course+"/simlearning/"
-# #     fio.NewPath(model_dir)
-#     train_leave_one_lecture_out(model_dir)
-#     
-#        
-# #     all_performance = "../data/"+course+"/simlearning/svm/out.txt"
-# #     gather_performance(all_performance)
-#       
+#     check_stopword()
 #     exit(-1)
     
-#     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
+    course = "IE256_2016"
+#     
+#     model_dir = "../data/"+course+"/simlearning/svm/"
+#     fio.NewPath(model_dir)
+#     train_leave_one_lecture_out_svm(model_dir)
+#      
+# #     model_dir = "../data/"+course+"/simlearning/"
+# # #     fio.NewPath(model_dir)
+# #     train_leave_one_lecture_out(model_dir)
+#      
+#         
+# #     all_performance = "../data/"+course+"/simlearning/svm/out.txt"
+# #     gather_performance(all_performance)
+#        
+#     exit(-1)
+#     
+# #     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
     for system, method in [
-                            ('QPS_NP', 'syntax'),
-                            ('QPS_A1_N', 'crf'),
-                            ('QPS_A2_N', 'crf'),
-                            ('QPS_union', 'crf'),
-                            ('QPS_intersect', 'crf'),
+#                             ('QPS_NP', 'syntax'),
+#                             ('QPS_A1', 'crf'),
+#                             ('QPS_A2', 'crf'),
+#                             ('QPS_union', 'crf'),
+#                             ('QPS_intersect', 'crf'),
                             ('QPS_combine', 'crf'),
                            ]:
         phrasedir = "../data/"+course+"/"+system+"/phrase/"
-              
-#         extractPhrasePaireFeature(phrasedir)
-              
-        #model_dir = "../data/"+course+"/simlearning/svm"
-        #predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svm')
-        
-        model_dir = "../data/"+course+"/simlearning/"
-        predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svr')
-        
+                
+        extractPhrasePaireFeature(phrasedir)
+         
+        model_dir = "../data/"+course+"/simlearning/svm"
+        fio.NewPath(model_dir)
+         
+        predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svm')
+          
+#         model_dir = "../data/"+course+"/simlearning/"
+#         predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svr')
+          
 # #           
     exit(-1)
-    
+     
     debug = False
     
     course = sys.argv[1]
@@ -522,20 +523,18 @@ if __name__ == '__main__':
     phrasedir = "../data/"+course+"/"+system+"/phrase/"
     fio.NewPath(phrasedir)
     
-    class_index_dict_file = '../data/IE256/class_dict.json'
+    class_index_dict_file = '../data/%s/class_dict.json' %course
     
-    if method == 'annotator1':
-        extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[0:1], 0)        
-    elif method == 'annotator2':
-        extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[-1:], 1)
+#     if method == 'annotator1':
+#         extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[0:1], 0)        
+#     elif method == 'annotator2':
+#         extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[-1:], 1)
 #      
     #correlation_analysis()
 #     correlation_analysis_noduplicate()
     
-#     model_dir = "../data/"+course+"/simlearning/"
-#     train_leave_one_lecture_out(model_dir)
-    
-
+    model_dir = "../data/"+course+"/simlearning/"
+    train_leave_one_lecture_out(model_dir)
     
 #     extractPhrasePaireFeature(phrasedir)
     

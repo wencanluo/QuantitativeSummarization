@@ -18,7 +18,7 @@ TypeMapReverse = {"q1_summaries":'Point of Interest', "q2_summaries":'Muddiest P
 from parse_rest.user import User
 
 class CourseMIRROR:
-    def __init__(self, app_id, api_key, master_key, config=None, system=None, method=None, similarity=None):
+    def __init__(self, app_id, api_key, master_key, config=None, system=None, method=None, similarity=None, K=None):
         register(app_id, api_key)
         
         self.old_N = 0
@@ -27,6 +27,7 @@ class CourseMIRROR:
         self.system = system
         self.method = method
         self.similarity = similarity
+        self.K = K
     
     def get_data_top(self, table, topK, cid=None, order_by = None):
         data = {'results':[]}
@@ -193,16 +194,16 @@ class CourseMIRROR:
 #         cmd = 'cmd /C "runLSA_All.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
 #         os.system(cmd)
               
-        # get ClusterARank (CourseMirror_phraseClusteringbasedShallowSummaryKmedoid-New-Malformed-LexRank.py)
-        cmd = "python CourseMirror_ClusterARank.py %s %d %s %s %s" %(cid, max_lecture, self.system, self.method, self.similarity)
-        print cmd
-        os.system(cmd)
-                
-        cmd = "python get_summary.py %s %s" % (cid, self.system)
-        print cmd
-        os.system(cmd)
-             
-        cmd = "python get_Rouge.py %s %d %s %s" % (cid, max_lecture, self.system, self.method + '_' + self.similarity)
+#         # get ClusterARank (CourseMirror_phraseClusteringbasedShallowSummaryKmedoid-New-Malformed-LexRank.py)
+#         cmd = "python CourseMirror_ClusterARank_K.py %s %d %s %s %s %d" %(cid, max_lecture, self.system, self.method, self.similarity, self.K)
+#         print cmd
+#         os.system(cmd)
+#                  
+#         cmd = "python get_summary.py %s %s" % (cid, self.system)
+#         print cmd
+#         os.system(cmd)
+              
+        cmd = "python get_Rouge_K.py %s %d %s %s %d" % (cid, max_lecture, self.system, self.method + '_' + self.similarity + '_' + str(self.K), self.K)
         print cmd
         os.system(cmd)
 
@@ -238,7 +239,38 @@ def gather_rouge(output):
             xbody.append(row)
     
     fio.WriteMatrix(output, xbody, Header)
+
+def gather_rouge_K(output):
+    datadir = '../data/%s/'%course
+    
+    #output = '../data/IE256/result.rouge.txt'
+    
+    models = ['QPS_NP', 
+              #'QPS_A1_N', 'QPS_A2_N', 'QPS_union', 'QPS_intersect', 'QPS_combine'
+              ]
+    methods = ['rouge_syntax_optimumComparerLSATasa_%d'%i for i in range(1, 20)]
+    
+    Header = ['method', 'model', 'R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'RSU4-P', 'RSU4-F',]
+    
+    xbody = []
+    for method in methods:
+        for model in models:
+            
+            filename = os.path.join(datadir, model, "%s.txt"%method)
+            
+            print filename
+            if not fio.IsExist(filename): continue
+                        
+            head, body = fio.ReadMatrix(filename, hasHead=True)
+            
+            row = [method, model]
+            row += body[-1][1:]
+            
+            xbody.append(row)
+    
+    fio.WriteMatrix(output, xbody, Header)
         
+                
 if __name__ == '__main__':
     
 #     exit(-1)
@@ -252,102 +284,30 @@ if __name__ == '__main__':
     config.read('../config/config_'+course+'.cfg')
     
     cid = config.get('course', 'cid')
-    
-#    system = 'oracle_annotator_2'
-#    method = 'annotator2'
-#    similarity = 'oracle'
-
-#     system = 'QPS_A2_N'
-#     method = 'crf'
-#     similarity = 'optimumComparerLSATasa'
-
-#     system = 'QPS_NP'
-#     method = 'crf'
-#     similarity = 'optimumComparerLSATasa'
-
-#     system = 'QPS_union'
-#     method = 'crf'
-#     similarity = 'optimumComparerLSATasa'
-
-#     system = 'QPS_intersect'
-#     method = 'crf'
-#     similarity = 'optimumComparerLSATasa'
-
-#     system = 'QPS_combine'
-#     method = 'crf'
-#     similarity = 'optimumComparerLSATasa'
-                
-#     system = 'oracle_union'
-#     method = 'union'
-#     
-#     system = 'oracle_intersect'
-#     method = 'intersect'
-    
-#     oslom_parms = '1'# -cp 0.1
-    
-#     cmd = 'python QPS_community_detection.py %s'%(oslom_parms)
-#     os.system(cmd)
-    
-    for system, method, similarity in [
-#                                         ('oracle_annotator_1', 'annotator1', 'oracle'),
-#                                         ('oracle_annotator_2', 'annotator2', 'oracle'),
-#                                         ('QPS_A1', 'annotator1', 'optimumComparerLSATasa'),
-#                                         ('QPS_A2', 'annotator2', 'optimumComparerLSATasa'),
-                                        ('QPS_NP', 'syntax', 'optimumComparerLSATasa'),
-#                                         ('QPS_union', 'union', 'optimumComparerLSATasa'),
-#                                         ('QPS_intersect', 'intersect', 'optimumComparerLSATasa'),
-#                                         ('QPS_combine', 'combine', 'optimumComparerLSATasa'),
-
-#                                        ('QPS_A1', 'crf', 'optimumComparerLSATasa'),
-#                                        ('QPS_A2', 'crf', 'optimumComparerLSATasa'),
-#                                         ('QPS_NP', 'crf', 'optimumComparerLSATasa'),
-#                                         ('QPS_union', 'crf', 'optimumComparerLSATasa'),
-#                                         ('QPS_intersect', 'crf', 'optimumComparerLSATasa'),
-#                                         ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
-
-#                                         ('QPS_A1_N', 'crf', 'svr'),
-#                                         ('QPS_A2_N', 'crf', 'svr'),
-#                                         #('QPS_NP', 'syntax', 'svr'),
-#                                         ('QPS_union', 'crf', 'svr'),
-#                                         ('QPS_intersect', 'crf', 'svr'),
-#                                         ('QPS_combine', 'crf', 'svr'),
-#                                          
-#                                         ('QPS_A1_N', 'crf', 'svm'),
-#                                         ('QPS_A2_N', 'crf', 'svm'),
-#                                         #('QPS_NP', 'syntax', 'svm'),
-#                                         ('QPS_union', 'crf', 'svm'),
-#                                         ('QPS_intersect', 'crf', 'svm'),
-#                                         ('QPS_combine', 'crf', 'svm'),
-
-#                                         ('QPS_A1_N', 'crf', 'ct.svr.default'),
-#                                         ('QPS_A2_N', 'crf', 'ct.svr.default'),
-#                                         #('QPS_NP', 'syntax', 'ct.svr.default'),
-#                                         ('QPS_union', 'crf', 'ct.svr.default'),
-#                                         ('QPS_intersect', 'crf', 'ct.svr.default'),
-#                                         ('QPS_combine', 'crf', 'ct.svr.default'),
-# #                                           
-#                                         ('QPS_A1_N', 'crf', 'ct.svm.default'),
-#                                         ('QPS_A2_N', 'crf', 'ct.svm.default'),
-#                                         ('QPS_NP', 'syntax', 'ct.svm.default'),
-#                                         ('QPS_union', 'crf', 'ct.svm.default'),
-#                                         ('QPS_intersect', 'crf', 'ct.svm.default'),
-#                                         ('QPS_combine', 'crf', 'ct.svm.default'),
-#
-#                                         ('QPS_NP', 'syntax', 'ct.lsa.default'),
-                                       ]:
-    
-        course_mirror_server = CourseMIRROR(config.get('Parse', 'PARSE_APP_ID'), 
-                                            config.get('Parse', 'PARSE_REST_API_KEY'), 
-                                            config.get('Parse', 'PARSE_MASTER_KEY'),
-                                            config,
-                                            system,
-                                            method,
-                                            similarity,
-                                            )
         
-        course_mirror_server.run(cid, summarylastlecture=config.getint('course', 'summarylastlecture'))
-    
+    #for K in range(1, 25):
+#     for K in range(1, 20):
+#         print K
+#         for system, method, similarity in [
+#                                             ('QPS_NP', 'syntax', 'optimumComparerLSATasa'),
+#                                            ]:
+#         
+#             course_mirror_server = CourseMIRROR(config.get('Parse', 'PARSE_APP_ID'), 
+#                                                 config.get('Parse', 'PARSE_REST_API_KEY'), 
+#                                                 config.get('Parse', 'PARSE_MASTER_KEY'),
+#                                                 config,
+#                                                 system,
+#                                                 method,
+#                                                 similarity,
+#                                                 K,
+#                                                 )
+#             
+#             course_mirror_server.run(cid, summarylastlecture=config.getint('course', 'summarylastlecture'))
+#     
     #output = '../data/IE256/result.rouge.%s.txt'%oslom_parms
     #gather_rouge(output)
 #     
+    
+    output = '../data/%s/result.rouge.%s.txt'%(course, 'K')
+    gather_rouge_K(output)
     

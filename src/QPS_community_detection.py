@@ -217,7 +217,7 @@ def readgraph_leave_one_lecture_out(phrasedir, modelname='svr'):
             print "%d\t%s\t%d"%(lec, q, len(communites))
             
 if __name__ == '__main__':
-    course = "IE256"
+    course = "IE256_2016"
     
     oslom_parms = sys.argv[1]
     
@@ -231,16 +231,19 @@ if __name__ == '__main__':
         oslom_parms = '-t 0.9 -infomap 3'# -cp 0.1
     elif oslom_parms == '3':
         oslom_parms = '-t 0.9 -infomap 3 -copra 2'# -cp 0.1
+    elif oslom_parms == '4':
+        oslom_parms = '-t 1.0 -singlet -r 30 -infomap 5 -copra 5'# -cp 0.1
     
-    for modelname in ['lsa']:#'svm', 'svr',  
+    for modelname in ['svm']:#'svm', 'svr',
+    #for modelname in ['lsa']:#'svm', 'svr',  
     #for modelname in ['svr', 'svm']:    #'svm', 
         for system, method in [
 #                                 ('QPS_A1_N', 'crf'),
 #                                 ('QPS_A2_N', 'crf'),
-                                ('QPS_NP', 'syntax'),
+#                                 ('QPS_NP', 'syntax'),
 #                                 ('QPS_union', 'crf'),
 #                                 ('QPS_intersect', 'crf'),
-#                                 ('QPS_combine', 'crf'),
+                                ('QPS_combine', 'crf'),
                             ]:
             phrasedir = "../data/"+course+"/"+system+"/phrase/"
             

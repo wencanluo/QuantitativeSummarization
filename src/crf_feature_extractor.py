@@ -21,7 +21,7 @@ class CRF_Extractor:
         if subtype_flag = True, extract the features by sub parse_type
         if bioe_flag = True, use the BIOE tags
         '''
-        self.features = ['pos', 'chunk', 'promptword', 'stopword', 'tf', 'rank']
+        self.features = ['pos', 'chunk', 'promptword', 'stopword', 'tf', 'rank', 'color']
         
         if 'pos' in self.features:
             self.pos_tagger = SennaTagger(global_params.sennadir)
@@ -42,7 +42,7 @@ class CRF_Extractor:
     def get_token_tf(self):
         self.token_dict = defaultdict(float)
         
-        for tokens, _ in self.sentences:
+        for tokens, _, _ in self.sentences:
             for token in self.porter.stem_tokens(tokens):
                 self.token_dict[token] += 1.0
         
@@ -58,9 +58,6 @@ class CRF_Extractor:
             if x > 1.0: x = 1.0
             
             self.token_dict[t] = x
-        
-        
-        
         
     def get_feature_names(self):
         return '_'.join(self.features)
@@ -137,7 +134,7 @@ class CRF_Extractor:
         for row in body:
             row.append('b')
     
-    def extract_crf_features(self, tokens, tags, prompt):
+    def extract_crf_features(self, tokens, tags, prompt, colors=None):
         '''
         Extract the character features, each token a line
         return: [][], two dimentionary array, representing the feature data of the sentence
@@ -199,7 +196,12 @@ class CRF_Extractor:
                 
                 x = self.rank_dict[token]
                 body[i].append(str(x))        
-                
+        
+        if 'color' in self.features and colors != None:
+            for color in colors:
+                for i, tag in enumerate(tags):
+                    body[i].append(str(color[i]))
+        
         #last row:
         tags = [tag for tag in tags]
         

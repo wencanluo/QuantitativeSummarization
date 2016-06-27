@@ -31,7 +31,7 @@ class AlignPhraseAnnotation:
             
         return response
         
-    def sequence(self, response):
+    def sequence(self, response):#use BIO
         response = self.normalize_space(response)
         #print response
         
@@ -61,6 +61,30 @@ class AlignPhraseAnnotation:
             
             tags.append(tag)
         return n_tokens, tags
+     
+    def extract_color(self, response, tags):
+        response = self.normalize_space(response)
+        #print response
+        
+        tokens = response.split(' ')
+        
+        assert(len(tokens) == len(tags))
+        
+        raw_colors = [int(token[-2]) if token.endswith('>') else -1 for token in tokens]
+        
+        colors = []
+        
+        color = -1
+        for tag, raw_color in zip(tags[::-1], raw_colors[::-1]):
+            if tag != 'O':
+                if raw_color != -1:
+                    color = raw_color
+            else:
+                color = -1
+            
+            colors.append(color)
+            
+        return colors[::-1]
         
     def align(self):
         responses0 = self.t0.get_response(self.prompt)
@@ -83,10 +107,14 @@ class AlignPhraseAnnotation:
                 print tokens1
                 continue
             
+            color0 = self.extract_color(response0[2], tags0)
+            color1 = self.extract_color(response1[2], tags1)
+            
             dict = {'student_id': response0[0],
                         'sentence_id': response0[1],
                         'response' : tokens0,  
-                        'tags' : [tags0, tags1]
+                        'tags' : [tags0, tags1],
+                        'colors': [color0, color1],
                         }
             
             self.responses.append(dict)
@@ -189,7 +217,7 @@ if __name__ == '__main__':
     response = "<critical value for><2> <hypothesis testing ><1>"
     response = 'critical value for <hypothesis testing ><1>'
     response2 = 'critical value for hypothesis testing'
-    response1 = '<critical value><2> for hypothesis testing'
+    response1 = '<critical value><2> for <hypothesis testing><1>'
     #response = '<Error bounding><2> is interesting and useful'
     response = 'determining the probability of the <error><2> while rejecting <ho><4>.'
     
@@ -197,15 +225,18 @@ if __name__ == '__main__':
     tokens1, tags1 = aligner.sequence(response1)
     tokens2, tags2 = aligner.sequence(response2)
     
-    print tokens1
-    print tags1
-    print tags2
-    tags = aligner.union_tag(tags1, tags2)
-    print aligner.get_phrase(tokens1, tags)
+    color1 = aligner.extract_color(response1, tags1)
+    print color1
     
-    tags = aligner.interset_tag(tags1, tags2)
-    print tags
-    
-    print aligner.get_phrase(tokens1, tags)
+#     print tokens1
+#     print tags1
+#     print tags2
+#     tags = aligner.union_tag(tags1, tags2)
+#     print aligner.get_phrase(tokens1, tags)
+#     
+#     tags = aligner.interset_tag(tags1, tags2)
+#     print tags
+#     
+#     print aligner.get_phrase(tokens1, tags)
     
     

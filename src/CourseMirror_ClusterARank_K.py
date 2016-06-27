@@ -48,7 +48,7 @@ def getShallowSummary(excelfile, folder, clusterdir, K=30, method=None, similari
             
             path = folder + str(week)+ '/'
             fio.NewPath(path)
-            filename = path + type + '.summary'
+            filename = path + type + '.%d.summary'%ratio
             
             #produce the cluster file on the fly
             phrasefile = os.path.join(clusterdir, str(week), type + '.' + method + '.key')
@@ -219,11 +219,15 @@ def PrintClusterRankSummary(datadir):
     fio.WriteMatrix(datadir + "summary.txt", body, head)
                         
 if __name__ == '__main__':
+    
+    
+    
     course = sys.argv[1]
     maxWeek = int(sys.argv[2])
     system = sys.argv[3]
     method = sys.argv[4]
     similarity = sys.argv[5] 
+    K = int(sys.argv[6])
     
     excelfile = "../data/CourseMIRROR/reflections.json"
               
@@ -233,7 +237,7 @@ if __name__ == '__main__':
     datadir = "../data/"+course+"/"+system+"/PhraseMead/"
     GetLexRankScore(datadir, method, clusterdir)
           
-    for ratio in ["sqrt"]:
+    for ratio in [K]:
         for lex in ['lexrankmax']:
             datadir = "../data/"+course+"/"+system+ '/ClusterARank/'   
             #fio.DeleteFolder(datadir)

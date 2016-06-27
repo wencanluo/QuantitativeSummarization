@@ -175,7 +175,7 @@ def Greedy(oracledir, np, L, metric='R1-F'):
                     #s = scores[RIndex]
                     if s > maxScore:
                         maxSum = TmpSum
-                        maxScore = s
+                        maxScore = scores
                         Changed = True
                 
                 if Changed:

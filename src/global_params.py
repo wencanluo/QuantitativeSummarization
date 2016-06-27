@@ -11,3 +11,6 @@ word2vec_model = '../data/IE256/vectors_IE256.bin'
 oslom_dir = '../../OSLOM2/'
 graphexe_undir = '../../OSLOM2/oslom_undir.exe'
 graphexe_dir = '../../OSLOM2/oslom_dir.exe'
+
+g_cid = 'IE256_2016'
+#g_cid = 'IE256'

@@ -437,6 +437,7 @@ def extractPhraseFeatureFromCombine(extractiondir, annotators, empty='N'):
             #add sentences to the extrator for global feature extraction
             for d in aligner.responses:
                 tokens = [token.lower() for token in d['response']]
+                colors = d['colors']
                 
                 if d['tags'][0] == d['tags'][1]:
                     combinetags = [d['tags'][0]]
@@ -458,16 +459,16 @@ def extractPhraseFeatureFromCombine(extractiondir, annotators, empty='N'):
                     tokens = n_tokens
                     tags = n_tags
                     
-                    crf_feature_extractor.add_sentence((tokens, tags))
+                    crf_feature_extractor.add_sentence((tokens, tags, colors))
             
-            for tokens, tags in crf_feature_extractor.sentences:
+            for tokens, tags, colors in crf_feature_extractor.sentences:
                 if empty == 'Y':
                     flag = True
                     for tag in tags:
                         if tag != 'O': flag = False
                     if flag: continue
                 
-                body = crf_feature_extractor.extract_crf_features(tokens, tags, prompt)
+                body = crf_feature_extractor.extract_crf_features(tokens, tags, prompt, colors)
                 
                 for row in body:
                     fout.write(' '.join(row))
@@ -606,7 +607,7 @@ if __name__ == '__main__':
         train_leave_one_lecture_out_NP('all')
          
     elif method == 'annotator1':
-        extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 0, empty)        
+        extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 0, empty)   
     elif method == 'annotator2':
         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 1, empty)
     elif method == 'union':
@@ -617,5 +618,5 @@ if __name__ == '__main__':
         extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
     print "done"
      
-    if method != 'NP':
-        train_leave_one_lecture_out('all')
+#     if method != 'NP':
+#         train_leave_one_lecture_out('all')

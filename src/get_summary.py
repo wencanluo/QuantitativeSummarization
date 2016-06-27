@@ -11,7 +11,7 @@ def get_phrase_reference_summary_phrase(outputs = None):
         fio.NewPath(output)
         
         counts = []
-        for doc, lec, annotator in annotation.generate_all_files(annotation.datadir + 'json/', '.json', anotators = ['Youngmin', 'Trevor'], lectures=annotation.Lectures):
+        for doc, lec, annotator in annotation.generate_all_files(annotation.datadir + 'json/', '.json', anotators = annotation.anotators, lectures=annotation.Lectures):
             print doc
             
             task = annotation.Task()
@@ -58,6 +58,7 @@ if __name__ == '__main__':
                 #mead_datadir + 'PhraseLexRankMMR',
                 #mead_datadir + 'keyphrase',
                 mead_datadir + 'ClusterARank',
+#                 mead_datadir + 'LexRank',
                 
                 #mead_datadir + 'IE256_Mead',
                 #mead_datadir + 'IE256_PhraseMead',
