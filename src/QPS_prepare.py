@@ -251,19 +251,22 @@ def extractPhraseFromCRFWithColor(phrasedir, systemdir):
         
         for prompt in ['q1', 'q2']:
             filename = path + prompt + '.' + method + '.key'
-            phrases = []
-            colors = []
+            extracted_phrases = []
+            extracted_colors = []
             
             crf_file = os.path.join(systemdir, 'extraction', 'all_output', 'test_%i_%s.out'%(i, prompt))
-            for tokens, tags, color0, color1 in crf_reader.read_file_generator_index(crf_file, [0, -1, -3, -2]):
-                for phrase, colors in aligner.get_phrase_with_colors(tokens, tags, [color0, color1]):
-                    phrases.append(phrase.lower())
-                    colors.append(colors)
+            for tokens, tags, color0, color1 in crf_reader.read_file_generator_index(crf_file, [0, -1, -4, -3]):
+                phrases, phrase_colors = aligner.get_phrase_with_colors(tokens, tags, [color0, color1])
+                
+                for phrase, phrase_color in zip(phrases, phrase_colors):
+                    
+                    extracted_phrases.append(phrase.lower())
+                    extracted_colors.append(phrase_color)
             
-            fio.SaveList(phrases, filename)
+            fio.SaveList(extracted_phrases, filename)
             
             filename = path + prompt + '.' + method + '.key.color'
-            fio.SaveDict2Json(colors, filename)
+            fio.SaveDict2Json(extracted_colors, filename)
                 
 if __name__ == '__main__':
     course = sys.argv[1]

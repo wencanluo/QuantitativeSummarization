@@ -99,7 +99,9 @@ class CRF(Classifier):
                     yield data
                 
                 data = []
-                
+                for x in index:
+                    data.append([])
+            
                 continue
             elif line[0] == '#': #score
                 score = line.split()[2]
@@ -109,9 +111,9 @@ class CRF(Classifier):
             
             for i, x in enumerate(index):
                 if x == -1:
-                    data[i].append(tmp[0].split(':')[-1])
-                elif x == 0:
                     data[i].append(tmp[-1].split('/')[0])
+                elif x == 0:
+                    data[i].append(tmp[0].split(':')[-1])
                 else:
                     data[i].append(tmp[x])
             

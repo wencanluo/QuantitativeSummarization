@@ -8,3 +8,6 @@ WordNet-JWI
 /doc
 *.pyc
 /src/*.pyc
+/src/*.jar
+/src/tp
+/src/time_seed.dat

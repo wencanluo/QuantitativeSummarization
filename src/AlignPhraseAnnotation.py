@@ -164,25 +164,41 @@ class AlignPhraseAnnotation:
     
     def get_phrase_with_colors(self, tokens, tags, colors):
         phrases = []
+        phrase_colors = []
+        
         tmp = []
-        for tag, token in zip(tags, tokens):
+        tmp_colors = [[] for color in colors]
+        
+        for i, (tag, token) in enumerate(zip(tags, tokens)):
             if tag == 'O':
                 if len(tmp) > 0:
                     phrases.append(' '.join(tmp))
+                    phrase_colors.append(tmp_colors)
+                    
                 tmp = []
+                tmp_colors = [[] for color in colors]
+                
             elif tag == 'B':
                 if len(tmp) > 0:
                     phrases.append(' '.join(tmp))
                 tmp = []
+                tmp_colors = [[] for color in colors]
+                
                 tmp.append(token)
+                for j, color in enumerate(colors):
+                    tmp_colors[j].append(int(color[i]))
+                
             else:
                 tmp.append(token)
+                for j, color in enumerate(colors):
+                    tmp_colors[j].append(int(color[i]))
         
         #last one
         if len(tmp) > 0:
             phrases.append(' '.join(tmp))
+            phrase_colors.append(tmp_colors)
                     
-        return phrases
+        return phrases, phrase_colors
     
     def get_phrase(self, tokens, tags):
         phrases = []

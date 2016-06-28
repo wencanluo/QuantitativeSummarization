@@ -2,7 +2,7 @@ import sys
 import re
 import fio
 import xml.etree.ElementTree as ET
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 import postProcess
 import random
@@ -86,7 +86,11 @@ def getShallowSummary(excelfile, folder, clusterdir, K=30, method=None, similari
             for row in body:
                 cluster[row[0]] = int(row[1])
             
+            counters = Counter(clusterids)
+            
             Summary = []
+            
+            student_no = []
             
             #sort the clusters according to the number of response
             keys = postProcess.RankClusterNoSource(NPs, lexdict, clusterids)
@@ -103,8 +107,12 @@ def getShallowSummary(excelfile, folder, clusterdir, K=30, method=None, similari
                 #if total_word <= K:
                 if len(Summary) + 1 <= K:
                     Summary.append(phrase)
+                    student_no.append(counters[key])
                     
             fio.SaveList(Summary, filename)
+            
+            filename = path + type + '.summary.no'
+            fio.SaveList(student_no, filename)
                         
 def ShallowSummary(excelfile, datadir, clusterdir, K=30, method=None, similarity=None, ratio=None, lex='lexrank'):
     getShallowSummary(excelfile, datadir, clusterdir, K, method, similarity, ratio, lex)

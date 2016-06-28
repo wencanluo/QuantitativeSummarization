@@ -32,6 +32,8 @@ def get_phrase_reference_summary_phrase(outputs = None):
                     print summary_filename
                     
                     summaries = [row[1] for row in sub_task["summary"][1:]]
+                    colors = [row[0].strip()[1] for row in sub_task["summary"][1:]]
+                    student_numbers = [row[2].strip() for row in sub_task["summary"][1:]]
                     
                     count = 0
                     for summary in summaries:
@@ -39,6 +41,12 @@ def get_phrase_reference_summary_phrase(outputs = None):
                     
                     counts.append(count)
                     fio.SaveList(summaries, summary_filename)
+                    
+                    color_filename = os.path.join(output, str(lec), '%s.ref.%s.color'%(type, str(annotation.anotator_dict[annotator])))
+                    fio.SaveList(colors, color_filename)
+                    
+                    no_filename = os.path.join(output, str(lec), '%s.ref.%s.no'%(type, str(annotation.anotator_dict[annotator])))
+                    fio.SaveList(student_numbers, no_filename)
         
         print counts
         print numpy.mean(counts)
