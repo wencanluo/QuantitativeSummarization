@@ -232,7 +232,7 @@ if __name__ == '__main__':
     elif oslom_parms == '3':
         oslom_parms = '-t 0.9 -infomap 3 -copra 2'# -cp 0.1
     elif oslom_parms == '4':
-        oslom_parms = '-t 1.0 -singlet -r 30 -infomap 5 -copra 5'# -cp 0.1
+        oslom_parms = '-t 1.0 -r 30 -infomap 5 -copra 5'# -cp 0.1
     
     for modelname in ['svm']:#'svm', 'svr',
     #for modelname in ['lsa']:#'svm', 'svr',  

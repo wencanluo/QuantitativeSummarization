@@ -495,7 +495,7 @@ if __name__ == '__main__':
 #                             ('QPS_A2', 'crf'),
 #                             ('QPS_union', 'crf'),
 #                             ('QPS_intersect', 'crf'),
-#                             ('QPS_combine', 'crf'),
+                            ('QPS_combine', 'crf'),
                            ]:
         phrasedir = "../data/"+course+"/"+system+"/phrase/"
                 

@@ -198,25 +198,29 @@ class CourseMIRROR:
         print cmd
         os.system(cmd)
                 
-#         cmd = "python get_summary.py %s %s" % (cid, self.system)
-#         print cmd
-#         os.system(cmd)
-#              
-#         cmd = "python get_Rouge.py %s %d %s %s" % (cid, max_lecture, self.system, self.method + '_' + self.similarity)
-#         print cmd
-#         os.system(cmd)
+        cmd = "python get_summary.py %s %s" % (cid, self.system)
+        print cmd
+        os.system(cmd)
+              
+        cmd = "python get_Rouge.py %s %d %s %s" % (cid, max_lecture, self.system, self.method + '_' + self.similarity)
+        print cmd
+        os.system(cmd)
 
 def gather_rouge(output):
-    datadir = '../data/IE256/'
+    datadir = '../data/%s/'%course
     
     #output = '../data/IE256/result.rouge.txt'
     
-    models = [#'QPS_NP', 
-              'QPS_A1_N', 'QPS_A2_N', 'QPS_union', 'QPS_intersect', 'QPS_combine']
-    methods = ['rouge_crf_svm', 
-               'rouge_crf_svr', 
-               'rouge_crf_ct.svm.default', 
-               'rouge_crf_ct.svr.default', 
+    models = ['QPS_NP', 
+              #'QPS_A1_N', 'QPS_A2_N', 'QPS_union', 'QPS_intersect', 
+              'QPS_combine'
+              ]
+    methods = ['rouge_crf_optimumComparerLSATasa',
+               'rouge_crf_ct.svm.default',
+               #'rouge_crf_svm', 
+               #'rouge_crf_svr', 
+               #'rouge_crf_ct.svm.default', 
+               #'rouge_crf_ct.svr.default', 
                ]
     
     Header = ['method', 'model', 'R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'RSU4-P', 'RSU4-F',]
@@ -259,6 +263,8 @@ if __name__ == '__main__':
 #     cmd = 'python QPS_community_detection.py %s'%(oslom_parms)
 #     os.system(cmd)
     
+    N = 0
+    
     for system, method, similarity in [
 #                                         ('oracle_annotator_1', 'annotator1', 'oracle'),
 #                                         ('oracle_annotator_2', 'annotator2', 'oracle'),
@@ -269,14 +275,14 @@ if __name__ == '__main__':
 #                                         ('QPS_union', 'union', 'optimumComparerLSATasa'),
 #                                         ('QPS_intersect', 'intersect', 'optimumComparerLSATasa'),
 #                                         ('QPS_combine', 'combine', 'optimumComparerLSATasa'),
-
+ 
 #                                        ('QPS_A1', 'crf', 'optimumComparerLSATasa'),
 #                                        ('QPS_A2', 'crf', 'optimumComparerLSATasa'),
 #                                         ('QPS_NP', 'crf', 'optimumComparerLSATasa'),
 #                                         ('QPS_union', 'crf', 'optimumComparerLSATasa'),
 #                                         ('QPS_intersect', 'crf', 'optimumComparerLSATasa'),
-#                                         ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
-
+                                        ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
+ 
 #                                         ('QPS_A1_N', 'crf', 'svr'),
 #                                         ('QPS_A2_N', 'crf', 'svr'),
 #                                         #('QPS_NP', 'syntax', 'svr'),
@@ -290,7 +296,7 @@ if __name__ == '__main__':
 #                                         ('QPS_union', 'crf', 'svm'),
 #                                         ('QPS_intersect', 'crf', 'svm'),
 #                                         ('QPS_combine', 'crf', 'svm'),
-
+ 
 #                                         ('QPS_A1_N', 'crf', 'ct.svr.default'),
 #                                         ('QPS_A2_N', 'crf', 'ct.svr.default'),
 #                                         #('QPS_NP', 'syntax', 'ct.svr.default'),
@@ -303,11 +309,11 @@ if __name__ == '__main__':
 #                                         ('QPS_NP', 'syntax', 'ct.svm.default'),
 #                                         ('QPS_union', 'crf', 'ct.svm.default'),
 #                                         ('QPS_intersect', 'crf', 'ct.svm.default'),
-#                                         ('QPS_combine', 'crf', 'ct.svm.default'),
+                                        ('QPS_combine', 'crf', 'ct.svm.default'),
 #
 #                                         ('QPS_NP', 'syntax', 'ct.lsa.default'),
                                        ]:
-    
+     
         course_mirror_server = CourseMIRROR(config.get('Parse', 'PARSE_APP_ID'), 
                                             config.get('Parse', 'PARSE_REST_API_KEY'), 
                                             config.get('Parse', 'PARSE_MASTER_KEY'),
@@ -316,10 +322,10 @@ if __name__ == '__main__':
                                             method,
                                             similarity,
                                             )
-        
+         
         course_mirror_server.run(cid, summarylastlecture=config.getint('course', 'summarylastlecture'))
     
-    #output = '../data/IE256/result.rouge.%s.txt'%oslom_parms
-    #gather_rouge(output)
+    output = '../data/%s/result.rouge.N%d.txt'%(course,N)
+    gather_rouge(output)
 #     
     

@@ -95,7 +95,8 @@ class EvalStudent:
             for color in color_count:
                 tp += min(self.ref_color[i][color], color_count[color])
             
-            precision = tp  / numpy.sum(color_count.values())
+            #precision = tp  / numpy.sum(color_count.values())
+            precision = tp  / numpy.sum(self.summary_no)
                     
             #recall
             recall = tp / numpy.sum(self.ref_color[i].values())
