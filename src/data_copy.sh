@@ -1,5 +1,5 @@
-path=../data/IE256_2016/QPS_combine_crf/phrase
-dest=../data/IE256_2016/QPS_combine/phrase
+path=../data/IE256/QPS_combine_old/phrase
+dest=../data/IE256/QPS_combine/phrase
 
 for i in $(seq 1 1 26)
 do

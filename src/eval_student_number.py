@@ -75,39 +75,45 @@ class EvalStudent:
             
     def score_no(self):
         
+        ave = []
+        
         #average by annotators
         scores = []
         
-        for i in range(self.N):
-            tp = 0.0
-            
-            color_count = defaultdict(int)
-            for summary_color, summary_no in zip(self.summary_color, self.summary_no):
-                colors = summary_color[i]
+        try:
+            for i in range(self.N):
+                tp = 0.0
                 
-                for color in set(colors):
-                    if color == -1: continue
+                color_count = defaultdict(int)
+                for summary_color, summary_no in zip(self.summary_color, self.summary_no):
+                    colors = summary_color[i]
                     
-                    color_count[color] += summary_no
-                    
-            #precision
-            #number of phrases matches the human color
-            for color in color_count:
-                tp += min(self.ref_color[i][color], color_count[color])
+                    for color in set(colors):
+                        if color == -1: continue
+                        
+                        color_count[color] += summary_no
+                        
+                #precision
+                #number of phrases matches the human color
+                for color in color_count:
+                    tp += min(self.ref_color[i][color], color_count[color])
+                
+                #precision = tp  / numpy.sum(color_count.values())
+                precision = tp  / numpy.sum(self.summary_no)
+                        
+                #recall
+                recall = tp / numpy.sum(self.ref_color[i].values())
+                
+                #number of color in human summary extracted
+                f_measure = 2*precision*recall/(precision+recall)
             
-            #precision = tp  / numpy.sum(color_count.values())
-            precision = tp  / numpy.sum(self.summary_no)
-                    
-            #recall
-            recall = tp / numpy.sum(self.ref_color[i].values())
+                scores.append([precision, recall, f_measure])
             
-            #number of color in human summary extracted
-            f_measure = 2*precision*recall/(precision+recall)
+            ave = numpy.mean(scores, 0)
         
-            scores.append([precision, recall, f_measure])
-        
-        ave = numpy.mean(scores, 0)
-        
+        except Exception as e:
+            print self.key_prefix
+            
         return list(ave) 
 
 def evaluate_student_number(phrasedir, summarydir, output):
@@ -146,7 +152,8 @@ if __name__ == '__main__':
         system = sys.argv[3]
         method = sys.argv[4]
     else:
-        course = 'IE256_2016'
+        #course = 'IE256_2016'
+        course = 'IE256'
         maxWeek = 26
         system = 'QPS_combine'
         method = 'crf'

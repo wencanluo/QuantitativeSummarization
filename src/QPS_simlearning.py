@@ -471,7 +471,9 @@ if __name__ == '__main__':
 #     check_stopword()
 #     exit(-1)
     
-    course = "IE256_2016"
+    course = sys.argv[1]
+    
+    #course = "IE256_2016"
 #     
 #     model_dir = "../data/"+course+"/simlearning/svm/"
 #     fio.NewPath(model_dir)

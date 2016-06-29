@@ -218,7 +218,7 @@ def extractPhraseFeatureFromAnnotation(extractiondir, annotators, id, empty='N')
                 
                 crf_feature_extractor.add_sentence((tokens, tags, colors))
             
-            for tokens, tags in crf_feature_extractor.sentences:
+            for tokens, tags, colors in crf_feature_extractor.sentences:
                 if empty == 'Y':
                     flag = True
                     for tag in tags:
@@ -304,6 +304,7 @@ def extractPhraseFeatureFromUnion(extractiondir, annotators, empty='N'):
             for d in aligner.responses:
                 tokens = [token.lower() for token in d['response']]
                 tags = aligner.union_tag(d['tags'][0], d['tags'][1])
+                colors = d['colors']
                 
                 n_tokens = []
                 n_tags = []
@@ -319,16 +320,16 @@ def extractPhraseFeatureFromUnion(extractiondir, annotators, empty='N'):
                 tokens = n_tokens
                 tags = n_tags
                 
-                crf_feature_extractor.add_sentence((tokens, tags))
+                crf_feature_extractor.add_sentence((tokens, tags, colors))
             
-            for tokens, tags in crf_feature_extractor.sentences:
+            for tokens, tags, colors in crf_feature_extractor.sentences:
                 if empty == 'Y':
                     flag = True
                     for tag in tags:
                         if tag != 'O': flag = False
                     if flag: continue
                 
-                body = crf_feature_extractor.extract_crf_features(tokens, tags, prompt)
+                body = crf_feature_extractor.extract_crf_features(tokens, tags, prompt, colors)
                 
                 for row in body:
                     fout.write(' '.join(row))
@@ -375,6 +376,7 @@ def extractPhraseFeatureFromIntersect(extractiondir, annotators, empty='N'):
             for d in aligner.responses:
                 tokens = [token.lower() for token in d['response']]
                 tags = aligner.interset_tag(d['tags'][0], d['tags'][1])
+                colors = d['colors']
                 
                 n_tokens = []
                 n_tags = []
@@ -390,16 +392,16 @@ def extractPhraseFeatureFromIntersect(extractiondir, annotators, empty='N'):
                 tokens = n_tokens
                 tags = n_tags
                 
-                crf_feature_extractor.add_sentence((tokens, tags))
+                crf_feature_extractor.add_sentence((tokens, tags, colors))
             
-            for tokens, tags in crf_feature_extractor.sentences:
+            for tokens, tags, colors in crf_feature_extractor.sentences:
                 if empty == 'Y':
                     flag = True
                     for tag in tags:
                         if tag != 'O': flag = False
                     if flag: continue
                 
-                body = crf_feature_extractor.extract_crf_features(tokens, tags, prompt)
+                body = crf_feature_extractor.extract_crf_features(tokens, tags, prompt, colors)
                 
                 for row in body:
                     fout.write(' '.join(row))

@@ -166,19 +166,19 @@ class CourseMIRROR:
 #         cmd = 'cmd /C "runSennaCourseMirror.bat '+str(cid)+ ' ' + str(max_lecture) + '"'
 #         os.system(cmd)
 #             
-#         cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
-#         os.system(cmd)
-#          
-#         cmd = 'python QPS_extraction.py %s %d %s %s %s'%(cid, max_lecture, self.system, str(self.method), 'N')
-#         os.system(cmd)
-#          
+        cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
+        os.system(cmd)
+#           
+#         #cmd = 'python QPS_extraction.py %s %d %s %s %s'%(cid, max_lecture, self.system, str(self.method), 'N')
+#         #os.system(cmd)
+#           
 #         #     . get PhraseMead input (CourseMirror_MeadPhrase.py)
 #         cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
 #         print cmd
 #         os.system(cmd)
-#                   
+#                    
 #         olddir = os.path.dirname(os.path.realpath(__file__))
-#                  
+#                   
 #         #     . get PhraseMead output
 #         meaddir = global_params.meaddir
 #         cmd = './get_mead_summary_phrase_qps.sh ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system)
@@ -187,7 +187,7 @@ class CourseMIRROR:
 #         print retcode
 #         subprocess.call("exit 1", shell=True)
 #         os.chdir(olddir)
-#          
+#           
 #         #     . get LSA results (CourseMirrorphrase2phraseSimilarity.java)
 #         #cmd = 'cmd /C "runLSA.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
 #         cmd = 'cmd /C "runLSA_All.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
@@ -197,11 +197,11 @@ class CourseMIRROR:
         cmd = "python CourseMirror_ClusterARank.py %s %d %s %s %s" %(cid, max_lecture, self.system, self.method, self.similarity)
         print cmd
         os.system(cmd)
-                
+                 
         cmd = "python get_summary.py %s %s" % (cid, self.system)
         print cmd
         os.system(cmd)
-              
+               
         cmd = "python get_Rouge.py %s %d %s %s" % (cid, max_lecture, self.system, self.method + '_' + self.similarity)
         print cmd
         os.system(cmd)
@@ -271,7 +271,7 @@ if __name__ == '__main__':
 #                                         ('QPS_A1', 'annotator1', 'optimumComparerLSATasa'),
 #                                         ('QPS_A2', 'annotator2', 'optimumComparerLSATasa'),
 #                                         ('QPS_NP', 'syntax', 'optimumComparerLSATasa'),
-                                        ('QPS_NP', 'crf', 'optimumComparerLSATasa'),
+#                                         ('QPS_NP', 'crf', 'optimumComparerLSATasa'),
 #                                         ('QPS_union', 'union', 'optimumComparerLSATasa'),
 #                                         ('QPS_intersect', 'intersect', 'optimumComparerLSATasa'),
 #                                         ('QPS_combine', 'combine', 'optimumComparerLSATasa'),
@@ -309,7 +309,7 @@ if __name__ == '__main__':
 #                                         ('QPS_NP', 'syntax', 'ct.svm.default'),
 #                                         ('QPS_union', 'crf', 'ct.svm.default'),
 #                                         ('QPS_intersect', 'crf', 'ct.svm.default'),
-                                        ('QPS_combine', 'crf', 'ct.svm.default'),
+#                                         ('QPS_combine', 'crf', 'ct.svm.default'),
 #
 #                                         ('QPS_NP', 'syntax', 'ct.lsa.default'),
                                        ]:
@@ -325,7 +325,7 @@ if __name__ == '__main__':
          
         course_mirror_server.run(cid, summarylastlecture=config.getint('course', 'summarylastlecture'))
     
-    output = '../data/%s/result.rouge.N%d.txt'%(course,N)
-    gather_rouge(output)
+#     output = '../data/%s/result.rouge.N%d.txt'%(course,N)
+#     gather_rouge(output)
 #     
     
