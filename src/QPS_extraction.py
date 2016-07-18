@@ -607,7 +607,7 @@ def train_on_IE256(name='all'):
         combine_files(feature_dir, train, train_filename)
         crf.train(train_filename, pattern_file, model_file)
 
-def train_cross_course(name='all'):
+def test_cross_course(name='all'):
     wapiti_home = '../../../tool/wapiti-1.5.0/'
     
     pattern_file = '../data/%s.pattern.txt'%name
@@ -626,22 +626,15 @@ def train_cross_course(name='all'):
     dict = defaultdict(int)
     
     for i, lec in enumerate(lectures):
-        train = [x for x in lectures if x != lec]
         test = [lec]
+        model_file = os.path.join(model_dir, 'IE256.model')
         
-        train_filename = os.path.join(feature_cv_dir, 'train_%d.feature.crf'%i)
-        
-        model_file = os.path.join(model_dir, '%d.model'%i)
-        
-        print train_filename
         print model_file
         
         crf = CRF(wapiti_home)
         if not fio.IsExist(model_file):
-        #if True:
-            combine_files(feature_dir, train, train_filename)
-            crf.train(train_filename, pattern_file, model_file)
-        
+            print "Model is not available"
+            
         for q in ['q1', 'q2']:
             
             test_filename = os.path.join(feature_cv_dir, 'test_%d_%s.feature.crf'%(i, q))
@@ -649,19 +642,13 @@ def train_cross_course(name='all'):
             
             dict['test_%d_%s'%(i, q)] = 1
             
-            if empty == 'Y':
-                test_filename_old = test_filename.replace('_Y', '_N')
+            if method == 'combine':
+                test_filename_old = test_filename.replace('_combine', '_A1')
                 cmd = 'cp %s %s'%(test_filename_old, test_filename)
                 os.system(cmd)
             else:
-                
-                if method == 'combine':
-                    test_filename_old = test_filename.replace('_combine', '_A1')
-                    cmd = 'cp %s %s'%(test_filename_old, test_filename)
-                    os.system(cmd)
-                else:
-                    combine_files(feature_dir, test, test_filename, prompts=[q])
-            
+                combine_files(feature_dir, test, test_filename, prompts=[q])
+        
             crf.predict(test_filename, model_file, output_file)
         
         if debug: break
@@ -754,4 +741,4 @@ if __name__ == '__main__':
 #         train_leave_one_lecture_out('all')
 
     train_on_IE256('all')
-#     train_cross_course('all')
+    test_cross_course('all')
