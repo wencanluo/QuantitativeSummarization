@@ -503,7 +503,7 @@ def combine_files(feature_dir, lectures, output, prompts=['q1', 'q2']):
             filename = os.path.join(feature_dir, str(lec), '%s.feature.crf'%q)
             
             for i, line in enumerate(codecs.open(filename, 'r', 'utf-8').readlines()):
-                if len(line.strip()) != 0 and len(line.split()) != 8:
+                if len(line.strip()) != 0 and len(line.split()) != 10:
                     print filename
                     print i, line
                     if debug: break
@@ -574,6 +574,100 @@ def train_leave_one_lecture_out(name='cv'):
     
     file_util.save_dict2json(dict, class_index_dict_file)
 
+def train_on_IE256(name='all'):
+    wapiti_home = '../../../tool/wapiti-1.5.0/'
+    
+    pattern_file = '../data/%s.pattern.txt'%name
+    model_dir = '../data/%s/%s/model/%s/'%(course, system, name)
+    fio.NewPath(model_dir)
+    
+    feature_dir = '../data/%s/%s/extraction/'%('IE256', system)
+    feature_cv_dir = '../data/%s/%s/extraction/%s/'%('IE256', system, name)
+    fio.NewPath(feature_cv_dir)
+    
+    outputdir = '../data/%s/%s/extraction/%s_output/'%(course, system, name)
+    fio.NewPath(outputdir)
+    
+    lectures = [x for x in range(14, 26) if x != 22]
+    
+    dict = defaultdict(int)
+    
+    train = [x for x in lectures]
+    
+    train_filename = os.path.join(feature_cv_dir, 'train.feature.crf')
+    
+    model_file = os.path.join(model_dir, 'IE256.model')
+    
+    print train_filename
+    print model_file
+    
+    crf = CRF(wapiti_home)
+    if not fio.IsExist(model_file):
+    #if True:
+        combine_files(feature_dir, train, train_filename)
+        crf.train(train_filename, pattern_file, model_file)
+
+def train_cross_course(name='all'):
+    wapiti_home = '../../../tool/wapiti-1.5.0/'
+    
+    pattern_file = '../data/%s.pattern.txt'%name
+    model_dir = '../data/%s/%s/model/%s/'%(course, system, name)
+    fio.NewPath(model_dir)
+    
+    feature_dir = '../data/%s/%s/extraction/'%(course, system)
+    feature_cv_dir = '../data/%s/%s/extraction/%s/'%(course, system, name)
+    fio.NewPath(feature_cv_dir)
+    
+    outputdir = '../data/%s/%s/extraction/%s_output/'%(course, system, name)
+    fio.NewPath(outputdir)
+    
+    lectures = annotation.Lectures
+    
+    dict = defaultdict(int)
+    
+    for i, lec in enumerate(lectures):
+        train = [x for x in lectures if x != lec]
+        test = [lec]
+        
+        train_filename = os.path.join(feature_cv_dir, 'train_%d.feature.crf'%i)
+        
+        model_file = os.path.join(model_dir, '%d.model'%i)
+        
+        print train_filename
+        print model_file
+        
+        crf = CRF(wapiti_home)
+        if not fio.IsExist(model_file):
+        #if True:
+            combine_files(feature_dir, train, train_filename)
+            crf.train(train_filename, pattern_file, model_file)
+        
+        for q in ['q1', 'q2']:
+            
+            test_filename = os.path.join(feature_cv_dir, 'test_%d_%s.feature.crf'%(i, q))
+            output_file = os.path.join(outputdir, 'test_%d_%s.out'%(i, q))
+            
+            dict['test_%d_%s'%(i, q)] = 1
+            
+            if empty == 'Y':
+                test_filename_old = test_filename.replace('_Y', '_N')
+                cmd = 'cp %s %s'%(test_filename_old, test_filename)
+                os.system(cmd)
+            else:
+                
+                if method == 'combine':
+                    test_filename_old = test_filename.replace('_combine', '_A1')
+                    cmd = 'cp %s %s'%(test_filename_old, test_filename)
+                    os.system(cmd)
+                else:
+                    combine_files(feature_dir, test, test_filename, prompts=[q])
+            
+            crf.predict(test_filename, model_file, output_file)
+        
+        if debug: break
+    
+    file_util.save_dict2json(dict, class_index_dict_file)
+    
 def train_leave_one_lecture_out_NP(name='cv'):
     feature_dir = '../data/%s/%s/extraction/'%(course, system)
     
@@ -640,21 +734,24 @@ if __name__ == '__main__':
     
     class_index_dict_file = '../data/%s/class_dict.json'%course
     
-    if method == 'NP':
-        extractPhraseFromSyntax(extractiondir, annotation.anotators)
-        train_leave_one_lecture_out_NP('all')
-         
-    elif method == 'annotator1':
-        extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 0, empty)   
-    elif method == 'annotator2':
-        extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 1, empty)
-    elif method == 'union':
-        extractPhraseFeatureFromUnion(extractiondir, annotation.anotators, empty)
-    elif method == 'intersect':
-        extractPhraseFeatureFromIntersect(extractiondir, annotation.anotators, empty)
-    elif method == 'combine':
-        extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
-    print "done"
-    
-    if method != 'NP':
-        train_leave_one_lecture_out('all')
+#     if method == 'NP':
+#         extractPhraseFromSyntax(extractiondir, annotation.anotators)
+#         train_leave_one_lecture_out_NP('all')
+#          
+#     elif method == 'annotator1':
+#         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 0, empty)   
+#     elif method == 'annotator2':
+#         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 1, empty)
+#     elif method == 'union':
+#         extractPhraseFeatureFromUnion(extractiondir, annotation.anotators, empty)
+#     elif method == 'intersect':
+#         extractPhraseFeatureFromIntersect(extractiondir, annotation.anotators, empty)
+#     elif method == 'combine':
+#         extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
+#     print "done"
+#     
+#     if method != 'NP':
+#         train_leave_one_lecture_out('all')
+
+    train_on_IE256('all')
+#     train_cross_course('all')
