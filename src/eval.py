@@ -447,6 +447,15 @@ class CRFEval:
         
         self.dict['overall_mention_F_measure'] = f_score
         
+        for parse_type in sorted(self.dict):
+            if parse_type.startswith('overall'): continue
+            
+            precision = self.dict[parse_type]['mention_precision']['value']
+            recall = self.dict[parse_type]['mention_recall']['value']
+            f_score = 2*precision*recall / (precision + recall)
+            
+            self.dict[parse_type]['mention_F_measure'] = f_score
+        
         return f_score
             
 class CRFEval_Filter(CRFEval):

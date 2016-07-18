@@ -169,21 +169,28 @@ def combine_files(lectures, features=None, prompts=['q1', 'q2']):
                         
     return X, Y
 
-def correlation_analysis():
+def correlation_analysis(course):
     phrasedir1 = '../data/%s/oracle_annotator_1/phrase/'%course
     phrasedir2 = '../data/%s/oracle_annotator_2/phrase/'%course
     
-    outdir = '../data/%s/simlearning/'
+    outdir = '../data/%s/simlearning/'%course
     fio.NewPath(outdir)
     
     sim_extractor = Similarity()
     
     features = sorted(sim_extractor.features.keys())
-    head = features + ['score']
+    head = features + ['score', 'predict']
     body = []
     lectures = annotation.Lectures
+    name = '_'.join(features)
     
     for i, lec in enumerate(lectures):
+        
+        model_file = os.path.join(model_dir, '%d_%s.model'%(lec, name))
+        
+        with open(model_file, 'rb') as handle:
+            clf = pickle.load(handle)
+            
         for q in ['q1', 'q2']:
             
             outfile = os.path.join(outdir, str(lec), '%s%s'%(q, sim_exe))
@@ -198,18 +205,25 @@ def correlation_analysis():
                 for fdict, score, _ in data:
                     row = []
                     
-                    for name in features:
-                        x = fdict[name]
+                    for fname in features:
+                        x = fdict[fname]
                         
                         if str(x) == 'nan':
                             x = 0.0
                         
                         row.append(x)
+                    
+                    predict_score = clf.predict([row])
+                    
                     row.append(score)
+                    
+                    row.append(predict_score[0])
                     
                     body.append(row)
     
     out_correlation = os.path.join(outdir, 'data.txt')
+    
+    print out_correlation
     fio.WriteMatrix(out_correlation, body, head)
 
 def correlation_analysis_noduplicate():
@@ -329,9 +343,10 @@ def train_leave_one_lecture_out_svm(model_dir, name='simlearn_cv'):
     allfeatures = sorted(sim_extractor.features.keys())
     
     #for k in range(len(allfeatures)+1):
-    if True:
-        k = len(allfeatures)
+    for k in range(len(allfeatures)):
+        if allfeatures[k] != 'optimumComparerLSATasa': continue
         
+    #if True:
         #features = allfeatures#['WordEmbedding']
         
         if k == len(allfeatures):#use all features
@@ -473,12 +488,17 @@ if __name__ == '__main__':
     
     course = sys.argv[1]
     
+    model_dir = "../data/"+course+"/simlearning/svm/"
+    correlation_analysis(course)
+    
+    exit(-1)
+    
     #course = "IE256_2016"
 #     
-#     model_dir = "../data/"+course+"/simlearning/svm/"
-#     fio.NewPath(model_dir)
-#     train_leave_one_lecture_out_svm(model_dir)
-#      
+    model_dir = "../data/"+course+"/simlearning/svm/"
+    fio.NewPath(model_dir)
+    train_leave_one_lecture_out_svm(model_dir)
+      
 # #     model_dir = "../data/"+course+"/simlearning/"
 # # #     fio.NewPath(model_dir)
 # #     train_leave_one_lecture_out(model_dir)
@@ -487,7 +507,7 @@ if __name__ == '__main__':
 # #     all_performance = "../data/"+course+"/simlearning/svm/out.txt"
 # #     gather_performance(all_performance)
 #        
-#     exit(-1)
+    exit(-1)
 #     
 # #     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
     for system, method in [
@@ -533,7 +553,7 @@ if __name__ == '__main__':
 #     elif method == 'annotator2':
 #         extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[-1:], 1)
 #      
-    #correlation_analysis()
+    
 #     correlation_analysis_noduplicate()
     
     model_dir = "../data/"+course+"/simlearning/"

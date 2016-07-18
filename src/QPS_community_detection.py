@@ -217,9 +217,9 @@ def readgraph_leave_one_lecture_out(phrasedir, modelname='svr'):
             print "%d\t%s\t%d"%(lec, q, len(communites))
             
 if __name__ == '__main__':
-    course = "IE256_2016"
+    course = sys.argv[1]
     
-    oslom_parms = sys.argv[1]
+    oslom_parms = sys.argv[2]
     
     if oslom_parms == '0':
         oslom_parms = ''

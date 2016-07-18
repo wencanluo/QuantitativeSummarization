@@ -13,7 +13,7 @@ import CourseMirror_Survey
 import OracleExperiment
 import json
 from CourseMirror_Survey import stopwords, punctuations
-
+import numpy as np
 from AlignPhraseAnnotation import AlignPhraseAnnotation
 from crf import CRF
 
@@ -93,7 +93,89 @@ def get_max_phrase_by_ROUGE(human, systems, Cache=None):
             summary = system
     
     return summary
+
+def extractStatistics(annotator, output):
     
+    students = set()
+    
+    body = []
+    for doc, lec, annotator in annotation.generate_all_files(annotation.datadir + 'json/', '.json', anotators = annotator, lectures=annotation.Lectures):
+        print doc
+        
+        #load task
+        task = annotation.Task()
+        task.loadjson(doc)
+        
+        for prompt in ['q1', 'q2']:
+            #for each lecture, prompt
+            row = [lec, prompt]
+            
+            stu = set()
+            
+            #number of students
+            wc = 0.0
+            dict = {}
+            raw_responses = task.get_raw_response(prompt)
+            for response_row in raw_responses[1:]:
+                student_id, response = response_row['student_id'], response_row['response']
+                student_id = student_id.lower()
+                
+                if student_id not in dict:
+                    dict[student_id] = []
+                dict[student_id].append(response)
+                students.add(student_id)
+                stu.add(student_id)
+                
+                wc += len(response.split())
+            
+            response_number = len(dict)
+            row.append(response_number) #number of responses
+            row.append(wc)              #word count
+            row.append(wc/response_number) #averaged number of words per response
+            
+            phrase_summary_dict = task.get_phrase_summary_textdict(prompt)
+            extracted_phrases = []
+            phrase_annotation = task.get_phrase_annotation(prompt)
+            
+            stu_h = set()
+            ph_c = 0
+            for rank in sorted(phrase_annotation):
+                phrases = phrase_annotation[rank]
+                ph_c += len(phrases)
+                for phrasedict in phrases:
+                    phrase = phrasedict['phrase'].lower() #phrase
+                    extracted_phrases.append(phrase)
+                    
+                    student_id = phrasedict['student_id'].lower().strip()
+                    stu_h.add(student_id)
+                    
+            row.append(ph_c) #phrase count
+            coverage = stu.intersection(stu_h)
+            coverage_ratio = len(coverage)*1.0 / len(stu)
+            row.append(coverage_ratio)
+            
+            body.append(row)
+    
+    #add average
+    head = ['lec', 'prompt', 'Response', 'Word', 'Word/Response', 'Highlights', 'Coverage']
+    
+    row = ['', 'ave']
+    for i in range(2, len(head)):
+        scores = [float(xx[i]) for xx in body]
+        row.append(np.mean(scores))
+    body.append(row)
+    
+    #add std
+    row = ['', 'std']
+    for i in range(2, len(head)):
+        scores = [float(xx[i]) for xx in body]
+        row.append(np.std(scores))
+    body.append(row)
+    
+    fio.WriteMatrix(output, body, head)
+    
+    print(len(students))        
+                    
 def extractPhraseFromAnnotation(phrasedir, annotator, summarydir=None):
     for doc, lec, annotator in annotation.generate_all_files(annotation.datadir + 'json/', '.json', anotators = annotator, lectures=annotation.Lectures):
         print doc
@@ -286,6 +368,10 @@ if __name__ == '__main__':
     summarydir = None #"../data/"+course+"/"+system+"/ClusterARank/"
     if summarydir:
         fio.NewPath(summarydir)
+    
+    output = "../data/"+course + '/statistics.txt'
+    extractStatistics(annotation.anotators[:1], output)
+    exit(-1)
     
     if method == 'syntax':
         extractPhrase(excelfile, phrasedir, sennadir, method=method)

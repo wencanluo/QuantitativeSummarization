@@ -133,19 +133,21 @@ class CourseMIRROR:
                 return dict['date']
         
         return ""
-
+            
     def run(self, cid, summarylastlecture=False):
         max_lecture = 26
-        
+#         
 #         max_lecture = self.get_max_lecture_num(cid)
 #         print "max_lecture", max_lecture
-#         
+#           
 #         #get reflections
 #         reflections = self.get_reflections(cid)
 #         jsonfile = '../data/CourseMIRROR/reflections.json' 
 #         with open(jsonfile, 'w') as outfile:
 #             json.dump(reflections, outfile, encoding='utf-8', indent=2)
-#            
+#             
+#         
+#             
 #         #get lectures
 #         lectures = self.get_lectures(cid)
 #         jsonfile = '../data/CourseMIRROR/lectures.json' 
@@ -166,8 +168,8 @@ class CourseMIRROR:
 #         cmd = 'cmd /C "runSennaCourseMirror.bat '+str(cid)+ ' ' + str(max_lecture) + '"'
 #         os.system(cmd)
 #             
-        cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
-        os.system(cmd)
+#         cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
+#         os.system(cmd)
 #           
 #         #cmd = 'python QPS_extraction.py %s %d %s %s %s'%(cid, max_lecture, self.system, str(self.method), 'N')
 #         #os.system(cmd)
@@ -176,9 +178,9 @@ class CourseMIRROR:
 #         cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
 #         print cmd
 #         os.system(cmd)
-#                    
+#                     
 #         olddir = os.path.dirname(os.path.realpath(__file__))
-#                   
+#                    
 #         #     . get PhraseMead output
 #         meaddir = global_params.meaddir
 #         cmd = './get_mead_summary_phrase_qps.sh ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system)
@@ -192,19 +194,19 @@ class CourseMIRROR:
 #         #cmd = 'cmd /C "runLSA.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
 #         cmd = 'cmd /C "runLSA_All.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
 #         os.system(cmd)
-              
-        # get ClusterARank (CourseMirror_phraseClusteringbasedShallowSummaryKmedoid-New-Malformed-LexRank.py)
-        cmd = "python CourseMirror_ClusterARank.py %s %d %s %s %s" %(cid, max_lecture, self.system, self.method, self.similarity)
-        print cmd
-        os.system(cmd)
-                 
-        cmd = "python get_summary.py %s %s" % (cid, self.system)
-        print cmd
-        os.system(cmd)
-               
-        cmd = "python get_Rouge.py %s %d %s %s" % (cid, max_lecture, self.system, self.method + '_' + self.similarity)
-        print cmd
-        os.system(cmd)
+#               
+#         # get ClusterARank (CourseMirror_phraseClusteringbasedShallowSummaryKmedoid-New-Malformed-LexRank.py)
+#         cmd = "python CourseMirror_ClusterARank.py %s %d %s %s %s" %(cid, max_lecture, self.system, self.method, self.similarity)
+#         print cmd
+#         os.system(cmd)
+#                   
+#         cmd = "python get_summary.py %s %s" % (cid, self.system)
+#         print cmd
+#         os.system(cmd)
+#                 
+#         cmd = "python get_Rouge.py %s %d %s %s" % (cid, max_lecture, self.system, self.method + '_' + self.similarity)
+#         print cmd
+#         os.system(cmd)
 
 def gather_rouge(output):
     datadir = '../data/%s/'%course
@@ -266,6 +268,8 @@ if __name__ == '__main__':
     N = 0
     
     for system, method, similarity in [
+#                                         ('oracle_annotator_1', 'annotator1', 'optimumComparerLSATasa'),
+#                                         ('oracle_annotator_2', 'annotator2', 'optimumComparerLSATasa'),
 #                                         ('oracle_annotator_1', 'annotator1', 'oracle'),
 #                                         ('oracle_annotator_2', 'annotator2', 'oracle'),
 #                                         ('QPS_A1', 'annotator1', 'optimumComparerLSATasa'),
@@ -281,7 +285,7 @@ if __name__ == '__main__':
 #                                         ('QPS_NP', 'crf', 'optimumComparerLSATasa'),
 #                                         ('QPS_union', 'crf', 'optimumComparerLSATasa'),
 #                                         ('QPS_intersect', 'crf', 'optimumComparerLSATasa'),
-                                        ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
+#                                         ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
  
 #                                         ('QPS_A1_N', 'crf', 'svr'),
 #                                         ('QPS_A2_N', 'crf', 'svr'),
@@ -295,7 +299,7 @@ if __name__ == '__main__':
 #                                         #('QPS_NP', 'syntax', 'svm'),
 #                                         ('QPS_union', 'crf', 'svm'),
 #                                         ('QPS_intersect', 'crf', 'svm'),
-#                                         ('QPS_combine', 'crf', 'svm'),
+                                        ('QPS_combine', 'crf', 'svm'),
  
 #                                         ('QPS_A1_N', 'crf', 'ct.svr.default'),
 #                                         ('QPS_A2_N', 'crf', 'ct.svr.default'),
@@ -325,7 +329,7 @@ if __name__ == '__main__':
          
         course_mirror_server.run(cid, summarylastlecture=config.getint('course', 'summarylastlecture'))
     
-#     output = '../data/%s/result.rouge.N%d.txt'%(course,N)
-#     gather_rouge(output)
+    output = '../data/%s/result.rouge.N%d.txt'%(course,N)
+    gather_rouge(output)
 #     
     

@@ -600,9 +600,25 @@ def train_leave_one_lecture_out_NP(name='cv'):
         if debug: break
     
     file_util.save_dict2json(dict, class_index_dict_file)
+
+def get_test_list(name='cv'):
+    output  = '../data/%s/class_dict.json'%course
     
+    lectures = annotation.Lectures
+    
+    dict = defaultdict(int)
+    
+    for i, lec in enumerate(lectures):
+        for q in ['q1', 'q2']:
+            dict['test_%d_%s'%(i, q)] = 1
+    
+    file_util.save_dict2json(dict, output)
+        
 if __name__ == '__main__':
-    #exit(-1)
+#     course = 'IE256'
+#     get_test_list()
+#     
+#     exit(-1)
     
     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
     #exit(-1)

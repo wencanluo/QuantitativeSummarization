@@ -38,5 +38,6 @@ def loadmodel(modelbin, vocabjson, output):
     fio.SaveDict2Json(word_vecs, output)
 
 if __name__ == '__main__':
+    
     loadmodel(global_params.word2vecfile, global_params.vocab, global_params.word2vec_model)
     

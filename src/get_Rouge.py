@@ -85,7 +85,7 @@ def getRouge(datadir, maxWeek, output):
     fio.WriteMatrix(output, body, header)
 
 def get_LexRankRouge():
-    course = 'IE256_2016'
+    course = 'IE256'
     system = 'QPS_NP'
     
     datadir = "../data/"+course+"/"+system+ '/LexRank/'

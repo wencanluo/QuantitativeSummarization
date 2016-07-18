@@ -89,17 +89,19 @@ class EvalStudent:
                     colors = summary_color[i]
                     
                     for color in set(colors):
-                        if color == -1: continue
+                        #if color == -1: continue
                         
                         color_count[color] += summary_no
                         
                 #precision
                 #number of phrases matches the human color
                 for color in color_count:
+                    if color == -1: continue
+                    
                     tp += min(self.ref_color[i][color], color_count[color])
                 
-                #precision = tp  / numpy.sum(color_count.values())
-                precision = tp  / numpy.sum(self.summary_no)
+                precision = tp  / numpy.sum(color_count.values())
+                #precision = tp  / numpy.sum(self.summary_no)
                         
                 #recall
                 recall = tp / numpy.sum(self.ref_color[i].values())
@@ -152,10 +154,11 @@ if __name__ == '__main__':
         system = sys.argv[3]
         method = sys.argv[4]
     else:
-        #course = 'IE256_2016'
+#         course = 'IE256_2016'
         course = 'IE256'
         maxWeek = 26
         system = 'QPS_combine'
+        #system = 'QPS_NP'
         method = 'crf'
     
     phrasedir = "../data/"+course+"/"+system+"/phrase/"

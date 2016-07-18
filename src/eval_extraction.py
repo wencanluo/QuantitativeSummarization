@@ -2,14 +2,20 @@ from eval import CRFEval
 import fio
 
 if __name__ == '__main__':
-    class_index_dict_file = '../data/IE256/class_dict.json'
+    from global_params import g_cid
     
-    output = "log.txt"
+    course = g_cid
+    #course = "IE256"
+    
+    class_index_dict_file = '../data/%s/class_dict.json'%course
+    
+    output = '../data/%s/phrase_extraction.txt'%course
     
     body = []
-    head = ['system', 'accuracy', 'precision', 'recall', 'F-measure']
-    for system in ['QPS_NP', 'QPS_A1_N', 'QPS_A1_Y', 'QPS_A2_N', 'QPS_A2_Y', 'QPS_union', 'QPS_intersect', 'QPS_combine']:
-            crf_sub_output = '../data/IE256/%s/extraction/all_output/'%system
+    head = ['system', 'test', 'precision', 'recall', 'F-measure']
+    #for system in ['QPS_NP', 'QPS_A1_N', 'QPS_A1_Y', 'QPS_A2_N', 'QPS_A2_Y', 'QPS_union', 'QPS_intersect', 'QPS_combine']:
+    for system in ['QPS_NP', 'QPS_combine']:
+            crf_sub_output = '../data/%s/%s/extraction/all_output/'%(course, system)
     
             eval = CRFEval(class_index_dict_file, crf_sub_output)
                 
@@ -18,8 +24,12 @@ if __name__ == '__main__':
             eval.get_mention_recall()
             eval.get_mention_F_measure()
             
-            row = [system, eval.dict['overall_accuracy']['value'], eval.dict['overall_mention_precision']['value'],eval.dict['overall_mention_recall']['value'], eval.dict['overall_mention_F_measure']]
-            body.append(row)
+            for test in sorted(eval.dict):
+                if test.startswith('overall'): continue
+                
+                #row = [system, eval.dict['overall_accuracy']['value'], eval.dict['overall_mention_precision']['value'],eval.dict['overall_mention_recall']['value'], eval.dict['overall_mention_F_measure']]
+                row = [system, test, eval.dict[test]['mention_precision']['value'],eval.dict[test]['mention_recall']['value'], eval.dict[test]['mention_F_measure']]
+                body.append(row)
             
             #print 'accuracy:%.4f\tprecision:%.4f\trecall:%.4f\tF-measure:%.4f'%(eval.dict['overall_accuracy']['value'], eval.dict['overall_mention_precision']['value'],eval.dict['overall_mention_recall']['value'], eval.dict['overall_mention_F_measure'])
     
