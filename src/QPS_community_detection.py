@@ -92,7 +92,8 @@ def writegraph_leave_one_lecture_out(model_dir, phrasedir, modelname='svr'):
         test = [lec]
         
         print test
-        model_file = os.path.join(model_dir, '%d_%s.model'%(lec, name))
+        #model_file = os.path.join(model_dir, '%d_%s.model'%(lec, name))
+        model_file = os.path.join(model_dir, '%s_%s.model'%('IE256', name))
         
         with open(model_file, 'rb') as handle:
             clf = pickle.load(handle)

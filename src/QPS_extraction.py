@@ -574,21 +574,24 @@ def train_leave_one_lecture_out(name='cv'):
     
     file_util.save_dict2json(dict, class_index_dict_file)
 
-def train_on_IE256(name='all'):
+def train_on_course(traincourse, name='all'):
     wapiti_home = '../../../tool/wapiti-1.5.0/'
     
     pattern_file = '../data/%s.pattern.txt'%name
     model_dir = '../data/%s/%s/model/%s/'%(course, system, name)
     fio.NewPath(model_dir)
     
-    feature_dir = '../data/%s/%s/extraction/'%('IE256', system)
-    feature_cv_dir = '../data/%s/%s/extraction/%s/'%('IE256', system, name)
+    feature_dir = '../data/%s/%s/extraction/'%(traincourse, system)
+    feature_cv_dir = '../data/%s/%s/extraction/%s/'%(traincourse, system, name)
     fio.NewPath(feature_cv_dir)
     
     outputdir = '../data/%s/%s/extraction/%s_output/'%(course, system, name)
     fio.NewPath(outputdir)
     
-    lectures = [x for x in range(14, 26) if x != 22]
+    if traincourse == 'IE256':
+        lectures = [x for x in range(14, 26) if x != 22]
+    else:
+        lectures = [x for x in range(3, 27)]
     
     dict = defaultdict(int)
     
@@ -596,7 +599,7 @@ def train_on_IE256(name='all'):
     
     train_filename = os.path.join(feature_cv_dir, 'train.feature.crf')
     
-    model_file = os.path.join(model_dir, 'IE256.model')
+    model_file = os.path.join(model_dir, '%s.model'%traincourse)
     
     print train_filename
     print model_file
@@ -627,7 +630,7 @@ def test_cross_course(name='all'):
     
     for i, lec in enumerate(lectures):
         test = [lec]
-        model_file = os.path.join(model_dir, 'IE256.model')
+        model_file = os.path.join(model_dir, 'IE256_2016.model')
         
         print model_file
         
@@ -740,5 +743,6 @@ if __name__ == '__main__':
 #     if method != 'NP':
 #         train_leave_one_lecture_out('all')
 
-    train_on_IE256('all')
+    train_on_course('IE256_2016','all')
+    
     test_cross_course('all')

@@ -154,8 +154,8 @@ if __name__ == '__main__':
         system = sys.argv[3]
         method = sys.argv[4]
     else:
-#         course = 'IE256_2016'
-        course = 'IE256'
+        course = 'IE256_2016'
+#         course = 'IE256'
         maxWeek = 26
         system = 'QPS_combine'
         #system = 'QPS_NP'

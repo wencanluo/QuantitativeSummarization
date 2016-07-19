@@ -369,9 +369,9 @@ if __name__ == '__main__':
     if summarydir:
         fio.NewPath(summarydir)
     
-    output = "../data/"+course + '/statistics.txt'
-    extractStatistics(annotation.anotators[:1], output)
-    exit(-1)
+#     output = "../data/"+course + '/statistics.txt'
+#     extractStatistics(annotation.anotators[:1], output)
+#     exit(-1)
     
     if method == 'syntax':
         extractPhrase(excelfile, phrasedir, sennadir, method=method)

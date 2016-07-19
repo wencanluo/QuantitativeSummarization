@@ -133,6 +133,41 @@ def combine_files_test(phrasedir, lectures, features=None, prompts=['q1', 'q2'])
                     Y.append(score)
                         
     return X, Y
+
+def combine_files_course(course, lectures, features=None, prompts=['q1', 'q2']):
+    phrasedir1 = '../data/%s/oracle_annotator_1/phrase/'%course
+    phrasedir2 = '../data/%s/oracle_annotator_2/phrase/'%course
+    
+    X = []
+    Y = []
+    
+    if features == None:
+        sim_extractor = Similarity()
+        features = sorted(sim_extractor.features.keys())
+
+    for i, lec in enumerate(lectures):
+        for q in prompts:
+            
+            for phrasedir in [phrasedir1, phrasedir2]:
+                path = phrasedir + str(lec)+ '/'
+                
+                filename = os.path.join(path, q + sim_exe)
+                
+                data = fio.LoadDictJson(filename)
+                
+                for fdict, score, _ in data:
+                    row = []
+                    
+                    for name in features:
+                        x = fdict[name]
+                        if str(x) == 'nan':
+                            x = 0.0
+                        row.append(x)
+                    
+                    X.append(row)
+                    Y.append(score)
+                        
+    return X, Y
            
 def combine_files(lectures, features=None, prompts=['q1', 'q2']):
     phrasedir1 = '../data/%s/oracle_annotator_1/phrase/'%course
@@ -332,6 +367,33 @@ def train_leave_one_lecture_out(model_dir, name='simlearn_cv'):
         
         fio.WriteMatrix(output, MSE, header=['lec', 'prompt', 'MSE'])
 
+def train_IE256_svm(model_dir, name='simlearn_cv'):    
+    sim_extractor = Similarity()
+    allfeatures = sorted(sim_extractor.features.keys())
+    
+    features = allfeatures
+        
+    name = '_'.join(features)
+        
+    lectures = annotation.Lectures
+        
+    dict = defaultdict(int)
+        
+    train = [x for x in range(14, 26) if x != 22]
+        
+    model_file = os.path.join(model_dir, '%s_%s.model'%('IE256', name))
+        
+    if fio.IsExist(model_file):
+        with open(model_file, 'rb') as handle:
+                clf = pickle.load(handle)
+    else:
+        train_X, train_Y = combine_files_course('IE256', train, features)
+        clf = svm.SVC()
+        clf.fit(train_X, train_Y)
+        
+        with open(model_file, 'wb') as handle:
+            pickle.dump(clf, handle)
+    
 def train_leave_one_lecture_out_svm(model_dir, name='simlearn_cv'):
 #     model_dir = '../data/IE256/%s/model/%s/'%(system, name)
 #     fio.NewPath(model_dir)
@@ -396,6 +458,50 @@ def train_leave_one_lecture_out_svm(model_dir, name='simlearn_cv'):
         
         fio.WriteMatrix(output, MSE, header=['lec', 'prompt', 'accuracy', 'precision', 'recall', 'f-score'])
 
+
+def predict_IE256(model_dir, phrasedir, modelname='svm'):    
+    sim_extractor = Similarity()
+    allfeatures = sorted(sim_extractor.features.keys())
+    
+    features = allfeatures
+    
+    name = '_'.join(features)
+    
+    lectures = annotation.Lectures
+    
+    for i, lec in enumerate(lectures):
+        test = [lec]
+        
+        print test
+        model_file = os.path.join(model_dir, '%s_%s.model'%('IE256', name))
+        
+        with open(model_file, 'rb') as handle:
+            clf = pickle.load(handle)
+        
+        path = os.path.join(phrasedir, str(lec))
+        
+        for q in ['q1', 'q2']:
+            test_X, test_Y = combine_files_test(phrasedir, test, features, prompts=[q])
+            predict_Y = clf.predict(test_X)
+            
+            #write the output
+            phrasefile = os.path.join(path, "%s.%s.key"%(q, method))
+            phrases = fio.LoadList(phrasefile)
+            
+            assert(len(predict_Y) == len(phrases)*len(phrases))
+            
+            k = 0
+            body = []
+            for p1 in phrases:
+                row = []
+                for p2 in phrases:
+                    row.append(predict_Y[k])
+                    k += 1
+                body.append(row)
+            
+            output = os.path.join(path, "%s.%s.%s"%(q, method,modelname))
+            fio.WriteMatrix(output, body, phrases)
+            
 def predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svr'):    
     sim_extractor = Similarity()
     allfeatures = sorted(sim_extractor.features.keys())
@@ -485,19 +591,29 @@ def check_stopword():
 if __name__ == '__main__':
 #     check_stopword()
 #     exit(-1)
+#     
+#     course = sys.argv[1]
+#     
+#     model_dir = "../data/"+course+"/simlearning/svm/"
+#     correlation_analysis(course)
+#     
+#     exit(-1)
     
-    course = sys.argv[1]
+    course = "IE256_2016"
     
+    system = 'QPS_combine'
+    method = 'crf'
     model_dir = "../data/"+course+"/simlearning/svm/"
-    correlation_analysis(course)
+#     train_IE256_svm(model_dir)
     
+    phrasedir = "../data/"+course+"/"+system+"/phrase/"
+    predict_IE256(model_dir, phrasedir, modelname='svm')
     exit(-1)
     
-    #course = "IE256_2016"
 #     
-    model_dir = "../data/"+course+"/simlearning/svm/"
-    fio.NewPath(model_dir)
-    train_leave_one_lecture_out_svm(model_dir)
+#     model_dir = "../data/"+course+"/simlearning/svm/"
+#     fio.NewPath(model_dir)
+#     train_leave_one_lecture_out_svm(model_dir)
       
 # #     model_dir = "../data/"+course+"/simlearning/"
 # # #     fio.NewPath(model_dir)
@@ -507,7 +623,7 @@ if __name__ == '__main__':
 # #     all_performance = "../data/"+course+"/simlearning/svm/out.txt"
 # #     gather_performance(all_performance)
 #        
-    exit(-1)
+#     exit(-1)
 #     
 # #     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
     for system, method in [
@@ -526,7 +642,7 @@ if __name__ == '__main__':
         model_dir = "../data/"+course+"/simlearning/svm"
         fio.NewPath(model_dir)
          
-        predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svm')
+#         predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svm')
           
 #         model_dir = "../data/"+course+"/simlearning/"
 #         predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svr')
