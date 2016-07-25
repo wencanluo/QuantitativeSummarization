@@ -1,4 +1,4 @@
-from nltk.align import bleu_score
+#from nltk.align import bleu_score
 import Cosin
 import OracleExperiment
 import json
@@ -206,7 +206,7 @@ if __name__ == '__main__':
     #s = Similarity('../data/IE256/oracle_annotator_1/phrase/14/q1.annotator1.')
     
     s = Similarity()
-    print s.WordEmbedding(p1, p2)
+    #print s.WordEmbedding(p1, p2)
     print s.ROUGE(p1, p2)
     
     #print s.WordEmbedding("the easy", "the hard")

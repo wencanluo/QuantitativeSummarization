@@ -505,9 +505,9 @@ def combine_files(feature_dir, lectures, output, prompts=['q1', 'q2']):
             filename = os.path.join(feature_dir, str(lec), '%s.feature.crf'%q)
             
             for i, line in enumerate(codecs.open(filename, 'r', 'utf-8').readlines()):
-                if len(line.strip()) != 0 and (len(line.split()) != 10 or len(line.split()) != 6):
+                if len(line.strip()) != 0 and (len(line.split()) != 10 or len(line.split()) != 5):
                     print filename
-                    print i, line
+                    #print i, line
                     if debug: break
                     
                 fout.write(line)
@@ -719,13 +719,14 @@ if __name__ == '__main__':
     
     excelfile = "../data/CourseMIRROR/reflections.json"
     
-    #extractVocab(annotation.anotators, '../data/%s/vocab.json'%course)
+    extractVocab(annotation.anotators, '../data/%s/vocab.json'%course)
     
     extractiondir = "../data/"+course+"/"+system+"/extraction/"
     fio.NewPath(extractiondir)
     
     class_index_dict_file = '../data/%s/class_dict.json'%course
     
+    '''
     if method == 'NP':
         extractPhraseFromSyntax(extractiondir, annotation.anotators)
         train_leave_one_lecture_out_NP('all')
@@ -741,6 +742,7 @@ if __name__ == '__main__':
     elif method == 'combine':
         extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
     print "done"
+    '''
      
     if method != 'NP':
         train_leave_one_lecture_out('all')

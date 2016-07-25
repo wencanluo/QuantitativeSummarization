@@ -282,10 +282,10 @@ if __name__ == '__main__':
  
 #                                        ('QPS_A1', 'crf', 'optimumComparerLSATasa'),
 #                                        ('QPS_A2', 'crf', 'optimumComparerLSATasa'),
-                                        ('QPS_NP', 'crf', 'optimumComparerLSATasa'),
+#                                         ('QPS_NP', 'crf', 'optimumComparerLSATasa'),
 #                                         ('QPS_union', 'crf', 'optimumComparerLSATasa'),
 #                                         ('QPS_intersect', 'crf', 'optimumComparerLSATasa'),
-#                                         ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
+                                        ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
  
 #                                         ('QPS_A1_N', 'crf', 'svr'),
 #                                         ('QPS_A2_N', 'crf', 'svr'),

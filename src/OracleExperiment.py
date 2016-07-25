@@ -4,6 +4,8 @@ import subprocess
 import json
 import numpy
 import cmd
+from tempfile import mkdtemp
+import os
 
 tmpdir = "../data/tmp/"
 RougeHeader = ['R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'RSU4-P', 'RSU4-F',]
@@ -71,6 +73,48 @@ def getRouge_Tac(refs, model):
             row.append(score)
             score = scorevalues[3].strip()
             row.append(score)
+        except Exception:
+            print filename, scorename, lines
+            
+    return row
+
+def getRougeTmp(ref, model):
+    #return the Rouge scores given the reference summary and the models
+    #create a temp file
+    temp_path = mkdtemp()
+    print(temp_path)
+    
+    #write the files
+    fio.SaveList(ref, os.path.join(temp_path, 'ref.txt'), '\n')
+    fio.SaveList(model, os.path.join(temp_path, 'model.txt'), '\n')
+    
+    retcode = subprocess.call(['./get_rouge_tmp %s'%temp_path], shell=True)
+    if retcode != 0:
+        print("Failed!")
+        exit(-1)
+    else:
+        print "Passed!"
+    
+    row = []
+    for scorename in RougeNames:
+        filename = os.path.join(temp_path, "OUT_"+scorename+".csv")
+        
+        if not fio.IsExist(filename): 
+            print filename, " not exist"
+            row = row + [0, 0, 0]
+            
+            continue
+        
+        lines = fio.ReadFile(filename)
+        try:
+            scorevalues = lines[1].split(',')
+            score = scorevalues[1].strip()
+            row.append(score)
+            score = scorevalues[2].strip()
+            row.append(score)
+            score = scorevalues[3].strip()
+            row.append(score)
+            fio.DeleteFolder(temp_path)
         except Exception:
             print filename, scorename, lines
             

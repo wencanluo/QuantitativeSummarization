@@ -602,16 +602,16 @@ if __name__ == '__main__':
 #     
 #     exit(-1)
     
-    course = "IE256"
+    course = global_params.g_cid
     
-    system = 'QPS_combine'
-    method = 'crf'
-    model_dir = "../data/"+course+"/simlearning/svm/"
-    train_IE256_svm('IE256_2016', model_dir)
-     
-    phrasedir = "../data/"+course+"/"+system+"/phrase/"
-    predict_IE256(model_dir, phrasedir, modelname='svm')
-    exit(-1)
+#     system = 'QPS_combine'
+#     method = 'crf'
+#     model_dir = "../data/"+course+"/simlearning/svm/"
+#     train_IE256_svm('IE256_2016', model_dir)
+#      
+#     phrasedir = "../data/"+course+"/"+system+"/phrase/"
+#     predict_IE256(model_dir, phrasedir, modelname='svm')
+#     exit(-1)
     
 #     
 #     model_dir = "../data/"+course+"/simlearning/svm/"
@@ -631,7 +631,7 @@ if __name__ == '__main__':
 # #     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
     for system, method in [
 #                             ('QPS_NP', 'syntax'),
-#                               ('QPS_NP', 'crf'),
+#                             ('QPS_NP', 'crf'),
 #                             ('QPS_A1', 'crf'),
 #                             ('QPS_A2', 'crf'),
 #                             ('QPS_union', 'crf'),
