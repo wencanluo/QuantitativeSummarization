@@ -28,6 +28,17 @@ elif g_cid == 'IE256_2016':
     anotators = ['Waiwood', 'Wang']
     anotator_dict = {'Waiwood':0, 
                      'Wang':1}
+    
+elif g_cid == 'CS0445':
+    doc_prefix = '_Lecture_'
+    Lectures = [x for x in range(5, 29) if x != 15]
+    AllLectures = Lectures
+    PrefrenceLectures = Lectures
+    
+    datadir = "../data/CS0445/"
+    anotators = ['Sam', 'Dana']
+    anotator_dict = {'Sam':0, 
+                     'Dana':1}
 
 summarization_methods = ['Phrase', 'Abstract', 'Extractive']
 
@@ -73,7 +84,7 @@ class Task:
     def extract_start_time(self):
         value = []
         for line in self.lines:
-            g = re.match('Start Time: _*(\d[^_]*)_+', line)
+            g = re.match('Start Time:\s*_*(\d[^_]*)_+', line)
             if g: #start time
                 value.append(g.group(1))
         
@@ -86,7 +97,7 @@ class Task:
     def extract_finish_time(self):
         value = []
         for line in self.lines:
-            g = re.match('Finish Time: _*(\d[^_]*)_+', line)
+            g = re.match('Finish Time:\s*_*(\d[^_]*)_+', line)
             if g: #start time
                 value.append(g.group(1))
         
@@ -228,7 +239,7 @@ class Task:
     
     def extract_task_anntation(self):
         regex_begin = re.compile('Task\d: (Extractive|Abstract|Phrase) (summary|Summarization)')
-        regex_finish = re.compile('Finish Time: _*(\d[^_]*)_+')
+        regex_finish = re.compile('Finish Time:\s*_*(\d[^_]*)_+')
         regex_rank = re.compile('Rank\d: _*(\d+)_+')
         regex_abstract_begin = re.compile('^%type your summary below$')
         regex_abstract_end1 = regex_abstract_begin
@@ -305,6 +316,9 @@ class Task:
                     dict['summary'].append(row)
                     row = []
                     sub_task_state = 0
+        
+        if len(self.tasks) != 6:
+            print "extract_task_anntation", self.filename
     
     def extract_preferece(self):
         regex = re.compile('_*(\d[^_]*)_+$')
@@ -581,7 +595,9 @@ if __name__ == '__main__':
     
     task = Task()
     
-    task.loadjson("../data/IE256/json/Trevor_IE256_Lecture_14_Completed.json")
+    task.load("../data/CS0445/text/Dana_Lecture_5_Completed.txt")
+    
+    #task.loadjson("../data/IE256/json/Trevor_IE256_Lecture_14_Completed.json")
     #print task.normalize("<probability of making mistake><2> is a <little><1> confusing")
     
     #print task.get_number_of_sentences()

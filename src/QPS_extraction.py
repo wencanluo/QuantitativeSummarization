@@ -82,6 +82,8 @@ def extractPhraseFromSyntax(extractiondir, annotators):
         assert(lec0 == lec1)
         lec = lec0
         
+#         if lec != 11: continue
+        
         #load tasks
         task0 = annotation.Task()
         task0.loadjson(doc0)
@@ -503,7 +505,7 @@ def combine_files(feature_dir, lectures, output, prompts=['q1', 'q2']):
             filename = os.path.join(feature_dir, str(lec), '%s.feature.crf'%q)
             
             for i, line in enumerate(codecs.open(filename, 'r', 'utf-8').readlines()):
-                if len(line.strip()) != 0 and len(line.split()) != 10:
+                if len(line.strip()) != 0 and (len(line.split()) != 10 or len(line.split()) != 6):
                     print filename
                     print i, line
                     if debug: break
@@ -724,25 +726,25 @@ if __name__ == '__main__':
     
     class_index_dict_file = '../data/%s/class_dict.json'%course
     
-#     if method == 'NP':
-#         extractPhraseFromSyntax(extractiondir, annotation.anotators)
-#         train_leave_one_lecture_out_NP('all')
-#          
-#     elif method == 'annotator1':
-#         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 0, empty)   
-#     elif method == 'annotator2':
-#         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 1, empty)
-#     elif method == 'union':
-#         extractPhraseFeatureFromUnion(extractiondir, annotation.anotators, empty)
-#     elif method == 'intersect':
-#         extractPhraseFeatureFromIntersect(extractiondir, annotation.anotators, empty)
-#     elif method == 'combine':
-#         extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
-#     print "done"
+    if method == 'NP':
+        extractPhraseFromSyntax(extractiondir, annotation.anotators)
+        train_leave_one_lecture_out_NP('all')
+          
+    elif method == 'annotator1':
+        extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 0, empty)   
+    elif method == 'annotator2':
+        extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 1, empty)
+    elif method == 'union':
+        extractPhraseFeatureFromUnion(extractiondir, annotation.anotators, empty)
+    elif method == 'intersect':
+        extractPhraseFeatureFromIntersect(extractiondir, annotation.anotators, empty)
+    elif method == 'combine':
+        extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
+    print "done"
+     
+    if method != 'NP':
+        train_leave_one_lecture_out('all')
+# 
+#     train_on_course('IE256_2016','all')
 #     
-#     if method != 'NP':
-#         train_leave_one_lecture_out('all')
-
-    train_on_course('IE256_2016','all')
-    
-    test_cross_course('all')
+#     test_cross_course('all')

@@ -3,7 +3,8 @@
 sennadir = 'D:/NLP/senna'
 
 # g_cid = 'IE256_2016'
-g_cid = 'IE256'
+# g_cid = 'IE256'
+g_cid = 'CS0445'
 
 #meaddir = '../../mead/bin/'
 meaddir = '/cygdrive/e/project/Fall2014/summarization/mead/bin/'

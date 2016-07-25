@@ -12,7 +12,7 @@ class AlignPhraseAnnotation:
     def normalize_space(self, response):
         new = ''
         for c in response:
-            if c in '.(),:?/': 
+            if c in '.(),:?/!;': 
                 c = ' '
             
             if c == "'":
@@ -71,7 +71,13 @@ class AlignPhraseAnnotation:
         assert(len(tokens) == len(tags))
         
         #print tokens
-        raw_colors = [int(token[-2]) if token.endswith('>') and tag != 'O' else -1 for token, tag in zip(tokens, tags)]
+        try:
+            raw_colors = [int(token[-2]) if token.endswith('>') and tag != 'O' else -1 for token, tag in zip(tokens, tags)]
+        except Exception as e:
+            print e
+            print response
+            print self.prompt
+            exit(-1)
         
         colors = []
         

@@ -367,7 +367,7 @@ def train_leave_one_lecture_out(model_dir, name='simlearn_cv'):
         
         fio.WriteMatrix(output, MSE, header=['lec', 'prompt', 'MSE'])
 
-def train_IE256_svm(model_dir, name='simlearn_cv'):    
+def train_IE256_svm(traincourse, model_dir, name='simlearn_cv'):    
     sim_extractor = Similarity()
     allfeatures = sorted(sim_extractor.features.keys())
     
@@ -379,15 +379,18 @@ def train_IE256_svm(model_dir, name='simlearn_cv'):
         
     dict = defaultdict(int)
         
-    train = [x for x in range(14, 26) if x != 22]
+    if traincourse == 'IE256':
+        train = [x for x in range(14, 26) if x != 22]
+    else:
+        train = [x for x in range(3, 27)]
         
-    model_file = os.path.join(model_dir, '%s_%s.model'%('IE256', name))
+    model_file = os.path.join(model_dir, '%s_%s.model'%(traincourse, name))
         
     if fio.IsExist(model_file):
         with open(model_file, 'rb') as handle:
                 clf = pickle.load(handle)
     else:
-        train_X, train_Y = combine_files_course('IE256', train, features)
+        train_X, train_Y = combine_files_course(traincourse, train, features)
         clf = svm.SVC()
         clf.fit(train_X, train_Y)
         
@@ -473,7 +476,7 @@ def predict_IE256(model_dir, phrasedir, modelname='svm'):
         test = [lec]
         
         print test
-        model_file = os.path.join(model_dir, '%s_%s.model'%('IE256', name))
+        model_file = os.path.join(model_dir, '%s_%s.model'%('IE256_2016', name))
         
         with open(model_file, 'rb') as handle:
             clf = pickle.load(handle)
@@ -599,13 +602,13 @@ if __name__ == '__main__':
 #     
 #     exit(-1)
     
-    course = "IE256_2016"
+    course = "IE256"
     
     system = 'QPS_combine'
     method = 'crf'
     model_dir = "../data/"+course+"/simlearning/svm/"
-#     train_IE256_svm(model_dir)
-    
+    train_IE256_svm('IE256_2016', model_dir)
+     
     phrasedir = "../data/"+course+"/"+system+"/phrase/"
     predict_IE256(model_dir, phrasedir, modelname='svm')
     exit(-1)
