@@ -5,6 +5,7 @@ import json
 import os
 from numpy import average
 import codecs
+import global_params
 
 tmpdir = "../data/tmp/"
 RougeHeader = ['R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'RSU4-P', 'RSU4-F',]
@@ -85,7 +86,7 @@ def getRouge(datadir, maxWeek, output):
     fio.WriteMatrix(output, body, header)
 
 def get_LexRankRouge():
-    course = 'IE256'
+    course = global_params.g_cid
     system = 'QPS_NP'
     
     datadir = "../data/"+course+"/"+system+ '/LexRank/'
@@ -98,7 +99,7 @@ def get_LexRankRouge():
     
     output = '../data/%s/%s/rouge_%s.txt' % (course, system, posfix)
      
-    getRouge(datadir, 26, output)
+    getRouge(datadir, 29, output)
     
     
 if __name__ == '__main__':

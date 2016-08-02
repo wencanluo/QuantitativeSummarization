@@ -4,7 +4,7 @@ import annotation
 import os
 import numpy
 from collections import defaultdict
-
+import global_params
 
 phrase_exe = '.key'
 color_exe  = '.key.color'
@@ -100,20 +100,30 @@ class EvalStudent:
                     
                     tp += min(self.ref_color[i][color], color_count[color])
                 
-                precision = tp  / numpy.sum(color_count.values())
+                total_p = numpy.sum(color_count.values())
+                if total_p == 0:
+                    precision = 0.0
+                else:
+                    precision = tp  / total_p
                 #precision = tp  / numpy.sum(self.summary_no)
                         
                 #recall
-                recall = tp / numpy.sum(self.ref_color[i].values())
+                total_r = numpy.sum(self.ref_color[i].values())
+                recall = tp / total_r
                 
                 #number of color in human summary extracted
-                f_measure = 2*precision*recall/(precision+recall)
+                if (precision+recall) == 0:
+                    f_measure = 0
+                else:
+                    f_measure = 2*precision*recall/(precision+recall)
             
                 scores.append([precision, recall, f_measure])
             
             ave = numpy.mean(scores, 0)
         
         except Exception as e:
+            print e
+            print total_p, total_r
             print self.key_prefix
             
         return list(ave) 
@@ -155,10 +165,10 @@ if __name__ == '__main__':
         method = sys.argv[4]
     else:
 #         course = 'IE256_2016'
-        course = 'IE256'
-        maxWeek = 26
+        course = global_params.g_cid
+        maxWeek = 29
         system = 'QPS_combine'
-        #system = 'QPS_NP'
+#         system = 'QPS_NP'
         method = 'crf'
     
     phrasedir = "../data/"+course+"/"+system+"/phrase/"

@@ -408,8 +408,11 @@ def train_leave_one_lecture_out_svm(model_dir, name='simlearn_cv'):
     allfeatures = sorted(sim_extractor.features.keys())
     
     #for k in range(len(allfeatures)+1):
-    for k in range(len(allfeatures)):
-        if allfeatures[k] != 'optimumComparerLSATasa': continue
+    k = len(allfeatures)
+    if True:
+    
+    #for k in range(len(allfeatures)):
+        #if allfeatures[k] != 'optimumComparerLSATasa': continue
         
     #if True:
         #features = allfeatures#['WordEmbedding']
@@ -611,24 +614,28 @@ if __name__ == '__main__':
 #      
 #     phrasedir = "../data/"+course+"/"+system+"/phrase/"
 #     predict_IE256(model_dir, phrasedir, modelname='svm')
-#     exit(-1)
+#     exit(-1)  
     
-#     
+    #Step2: train the model
 #     model_dir = "../data/"+course+"/simlearning/svm/"
 #     fio.NewPath(model_dir)
 #     train_leave_one_lecture_out_svm(model_dir)
-      
-# #     model_dir = "../data/"+course+"/simlearning/"
-# # #     fio.NewPath(model_dir)
-# #     train_leave_one_lecture_out(model_dir)
-#      
-#         
-# #     all_performance = "../data/"+course+"/simlearning/svm/out.txt"
-# #     gather_performance(all_performance)
-#        
+#     exit(-1)
+
+#       
+# # #     model_dir = "../data/"+course+"/simlearning/"
+# # # #     fio.NewPath(model_dir)
+# # #     train_leave_one_lecture_out(model_dir)
+# #      
+# #         
+# # #     all_performance = "../data/"+course+"/simlearning/svm/out.txt"
+# # #     gather_performance(all_performance)
+# #        
 #     exit(-1)
 #     
-# #     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
+#     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
+
+    #Step3: extract features
     for system, method in [
 #                             ('QPS_NP', 'syntax'),
 #                             ('QPS_NP', 'crf'),
@@ -639,45 +646,44 @@ if __name__ == '__main__':
                             ('QPS_combine', 'crf'),
                            ]:
         phrasedir = "../data/"+course+"/"+system+"/phrase/"
-                
+                  
         extractPhrasePaireFeature(phrasedir)
-         
+           
         model_dir = "../data/"+course+"/simlearning/svm"
         fio.NewPath(model_dir)
-         
-#         predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svm')
-          
+           
+        predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svm')
+            
 #         model_dir = "../data/"+course+"/simlearning/"
 #         predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svr')
-          
+            
 # #           
     exit(-1)
-     
-    debug = False
     
+    #Step 1: get sim feature for oracle 1, and oracle 2
+    debug = False
+     
     course = sys.argv[1]
     maxWeek = int(sys.argv[2])
     system = sys.argv[3]
     method = sys.argv[4]
-    
+     
     excelfile = "../data/CourseMIRROR/reflections.json"
-            
+             
     phrasedir = "../data/"+course+"/"+system+"/phrase/"
     fio.NewPath(phrasedir)
-    
+     
     class_index_dict_file = '../data/%s/class_dict.json' %course
-    
-#     if method == 'annotator1':
-#         extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[0:1], 0)        
-#     elif method == 'annotator2':
-#         extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[-1:], 1)
-#      
-    
+     
+    if method == 'annotator1':
+        extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[0:1], 0)        
+    elif method == 'annotator2':
+        extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[-1:], 1)
+      
+     
 #     correlation_analysis_noduplicate()
-    
-    model_dir = "../data/"+course+"/simlearning/"
-    train_leave_one_lecture_out(model_dir)
-    
+#     model_dir = "../data/"+course+"/simlearning/"
+#     train_leave_one_lecture_out(model_dir)
 #     extractPhrasePaireFeature(phrasedir)
     
     print "done"

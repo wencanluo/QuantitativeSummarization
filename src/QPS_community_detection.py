@@ -92,8 +92,8 @@ def writegraph_leave_one_lecture_out(model_dir, phrasedir, modelname='svr'):
         test = [lec]
         
         print test
-        #model_file = os.path.join(model_dir, '%d_%s.model'%(lec, name))
-        model_file = os.path.join(model_dir, '%s_%s.model'%('IE256_2016', name))
+        model_file = os.path.join(model_dir, '%d_%s.model'%(lec, name))
+        #model_file = os.path.join(model_dir, '%s_%s.model'%('IE256_2016', name))
         
         with open(model_file, 'rb') as handle:
             clf = pickle.load(handle)
@@ -218,9 +218,9 @@ def readgraph_leave_one_lecture_out(phrasedir, modelname='svr'):
             print "%d\t%s\t%d"%(lec, q, len(communites))
             
 if __name__ == '__main__':
-    course = sys.argv[1]
+    course = global_params.g_cid
     
-    oslom_parms = sys.argv[2]
+    oslom_parms = sys.argv[1]
     
     if oslom_parms == '0':
         oslom_parms = ''

@@ -54,6 +54,10 @@ prompt_words = {
                 'q1': 'describe what you found most interesting in today\'s class'.split(),
                 'q2': 'describe what was confusing or needed more detail'.split(),
                 }
+
+prompt_name = {'q1':'POI',
+               'q2':'MP'
+               }
                
 def get_name(lec, anotator):
     return anotator + doc_prefix + str(lec) + '_Completed'

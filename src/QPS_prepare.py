@@ -16,6 +16,7 @@ from CourseMirror_Survey import stopwords, punctuations
 import numpy as np
 from AlignPhraseAnnotation import AlignPhraseAnnotation
 from crf import CRF
+import global_params
 
 def isMalformed(phrase):
     N = len(phrase.split())
@@ -94,6 +95,42 @@ def get_max_phrase_by_ROUGE(human, systems, Cache=None):
     
     return summary
 
+def compare_length(annotator, output):
+    students = set()
+    
+    lengthes = defaultdict(list)
+    body = []
+    for doc, lec, annotator in annotation.generate_all_files(annotation.datadir + 'json/', '.json', anotators = annotator, lectures=annotation.Lectures):
+        print doc
+        
+        #load task
+        task = annotation.Task()
+        task.loadjson(doc)
+        
+        for prompt in ['q1', 'q2']:
+            #for each lecture, prompt
+            row = [lec, prompt]
+            
+            stu = set()
+            
+            #number of students
+            dict = {}
+            raw_responses = task.get_raw_response(prompt)
+            for response_row in raw_responses[1:]:
+                student_id, response = response_row['student_id'], response_row['response']
+                student_id = student_id.lower()
+                
+                if student_id not in dict:
+                    dict[student_id] = []
+                dict[student_id].append(response)
+            
+            for stu in dict:
+                
+                lengthes[prompt].append(len(' '.join(dict[stu]).split()))
+    
+    import stats_util
+    print '%s\t%f\t%f\t%f'%(course, np.mean(lengthes['q1']), np.mean(lengthes['q2']), stats_util.ttest(lengthes['q1'], lengthes['q2'], 2, 2)[-1])
+    
 def extractStatistics(annotator, output):
     
     students = set()
@@ -351,6 +388,11 @@ def extractPhraseFromCRFWithColor(phrasedir, systemdir):
             fio.SaveDict2Json(extracted_colors, filename)
                 
 if __name__ == '__main__':
+    course = global_params.g_cid
+    output = "../data/"+course + '/length.txt'
+    compare_length(annotation.anotators[:1], output)
+    exit(-1)
+    
     course = sys.argv[1]
     maxWeek = int(sys.argv[2])
     system = sys.argv[3]
@@ -368,6 +410,7 @@ if __name__ == '__main__':
     summarydir = None #"../data/"+course+"/"+system+"/ClusterARank/"
     if summarydir:
         fio.NewPath(summarydir)
+
     
 #     output = "../data/"+course + '/statistics.txt'
 #     extractStatistics(annotation.anotators[:1], output)
