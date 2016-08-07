@@ -28,6 +28,7 @@ class EvalCluster:
         #load phrase color map
         phrasefile = key_prefix + phrase_exe
         phrases = fio.LoadList(phrasefile)
+        self.phrases = phrases
         
         colorfile = key_prefix + color_exe
         color_map = fio.LoadDictJson(colorfile)
@@ -107,7 +108,7 @@ class EvalCluster:
                     #count the ratio
                     agreement += counter[cluster_color]
                 
-                scores.append([agreement/total, len(self.cluster_color)])
+                scores.append([agreement/total, len(self.cluster_color), len(self.cluster_color) + (len(self.phrases) - total)])
             
             ave = numpy.mean(scores, 0)
         
@@ -155,10 +156,11 @@ if __name__ == '__main__':
         system = sys.argv[3]
         method = sys.argv[4]
     else:
-        course = 'IE256_2016'
-#         course = 'IE256'
-        maxWeek = 26
-        system = 'QPS_combine'
+        #course = 'IE256_2016'
+        #course = 'IE256'
+        course = 'CS0445'
+        maxWeek = 29
+        system = 'QPS_combine_coling'
         #system = 'QPS_NP'
         method = 'crf'
     
