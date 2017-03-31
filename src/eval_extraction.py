@@ -1,10 +1,11 @@
 from eval import CRFEval
 import fio
+import crf
+import sys
 
 if __name__ == '__main__':
-    from global_params import g_cid
     
-    course = g_cid
+    course = sys.argv[1]
     #course = "IE256"
     
     class_index_dict_file = '../data/%s/class_dict.json'%course

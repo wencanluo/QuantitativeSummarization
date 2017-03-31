@@ -408,15 +408,12 @@ def train_leave_one_lecture_out_svm(model_dir, name='simlearn_cv'):
     allfeatures = sorted(sim_extractor.features.keys())
     
     #for k in range(len(allfeatures)+1):
-    k = len(allfeatures)
-    if True:
-    
-    #for k in range(len(allfeatures)):
-        #if allfeatures[k] != 'optimumComparerLSATasa': continue
-        
+    #k = len(allfeatures)
     #if True:
-        #features = allfeatures#['WordEmbedding']
-        
+    
+    for k in range(len(allfeatures)):
+        if allfeatures[k] != 'optimumComparerLSATasa': continue
+
         if k == len(allfeatures):#use all features
             features = allfeatures
         else:
@@ -617,10 +614,10 @@ if __name__ == '__main__':
 #     exit(-1)  
     
     #Step2: train the model
-#     model_dir = "../data/"+course+"/simlearning/svm/"
-#     fio.NewPath(model_dir)
-#     train_leave_one_lecture_out_svm(model_dir)
-#     exit(-1)
+    model_dir = "../data/"+course+"/simlearning/svm/"
+    fio.NewPath(model_dir)
+    train_leave_one_lecture_out_svm(model_dir)
+    exit(-1)
 
 #       
 # # #     model_dir = "../data/"+course+"/simlearning/"

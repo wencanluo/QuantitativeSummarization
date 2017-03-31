@@ -388,10 +388,10 @@ def extractPhraseFromCRFWithColor(phrasedir, systemdir):
             fio.SaveDict2Json(extracted_colors, filename)
                 
 if __name__ == '__main__':
-    course = global_params.g_cid
-    output = "../data/"+course + '/length.txt'
-    compare_length(annotation.anotators[:1], output)
-    exit(-1)
+#     course = global_params.g_cid
+#     output = "../data/"+course + '/length.txt'
+#     compare_length(annotation.anotators[:1], output)
+#     exit(-1)
     
     course = sys.argv[1]
     maxWeek = int(sys.argv[2])

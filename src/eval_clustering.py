@@ -160,7 +160,7 @@ if __name__ == '__main__':
         #course = 'IE256'
         course = 'CS0445'
         maxWeek = 29
-        system = 'QPS_combine_coling'
+        system = 'QPS_combine'
         #system = 'QPS_NP'
         method = 'crf'
     

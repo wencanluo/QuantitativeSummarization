@@ -1,13 +1,13 @@
 #sennadir = '../../qualityprediction_server/data/senna'
 #sennadir = '/cygdrive/d/NLP/senna'
-sennadir = 'D:/NLP/senna'
+sennadir = 'E:/project/senna'
 
 #g_cid = 'IE256_2016'
 #g_cid = 'IE256'
 g_cid = 'CS0445'
 
 #meaddir = '../../mead/bin/'
-meaddir = '/cygdrive/e/project/Fall2014/summarization/mead/bin/'
+meaddir = '/cygdrive/e/project//mead/bin/'
 word2vecfile = '../../data/GoogleNews-vectors-negative300.bin'
 vocab = '../data/%s/vocab.json'%g_cid
 word2vec_model = '../data/%s/vectors.bin'%g_cid

@@ -726,7 +726,6 @@ if __name__ == '__main__':
     
     class_index_dict_file = '../data/%s/class_dict.json'%course
     
-    '''
     if method == 'NP':
         extractPhraseFromSyntax(extractiondir, annotation.anotators)
         train_leave_one_lecture_out_NP('all')
@@ -742,7 +741,6 @@ if __name__ == '__main__':
     elif method == 'combine':
         extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
     print "done"
-    '''
      
     if method != 'NP':
         train_leave_one_lecture_out('all')

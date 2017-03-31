@@ -229,6 +229,9 @@ if __name__ == '__main__':
     
     cid = sys.argv[1]
     maxWeek = int(sys.argv[2])
+
+#     cid = 'CS0445'
+#     maxWeek = 28
     
     excelfile = "../data/CourseMirror/reflections.json"
     annotation_dir = "../data/Annotation/" + cid + '/'
