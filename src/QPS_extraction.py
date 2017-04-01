@@ -516,7 +516,7 @@ def combine_files(feature_dir, lectures, output, prompts=['q1', 'q2']):
     fout.close()
             
 def train_leave_one_lecture_out(name='cv'):
-    wapiti_home = '../../../tool/wapiti-1.5.0/'
+    wapiti_home = global_params.wapiti_dir
     
     pattern_file = '../data/%s.pattern.txt'%name
     model_dir = '../data/%s/%s/model/%s/'%(course, system, name)
@@ -577,7 +577,7 @@ def train_leave_one_lecture_out(name='cv'):
     file_util.save_dict2json(dict, class_index_dict_file)
 
 def train_on_course(traincourse, name='all'):
-    wapiti_home = '../../../tool/wapiti-1.5.0/'
+    wapiti_home = global_params.wapiti_dir
     
     pattern_file = '../data/%s.pattern.txt'%name
     model_dir = '../data/%s/%s/model/%s/'%(course, system, name)
@@ -612,8 +612,8 @@ def train_on_course(traincourse, name='all'):
         combine_files(feature_dir, train, train_filename)
         crf.train(train_filename, pattern_file, model_file)
 
-def test_cross_course(name='all'):
-    wapiti_home = '../../../tool/wapiti-1.5.0/'
+def test_cross_course(train, name='all'):
+    wapiti_home = global_params.wapiti_dir
     
     pattern_file = '../data/%s.pattern.txt'%name
     model_dir = '../data/%s/%s/model/%s/'%(course, system, name)
@@ -632,7 +632,7 @@ def test_cross_course(name='all'):
     
     for i, lec in enumerate(lectures):
         test = [lec]
-        model_file = os.path.join(model_dir, 'IE256_2016.model')
+        model_file = os.path.join(model_dir, '%s.model'%train)
         
         print model_file
         
@@ -726,25 +726,25 @@ if __name__ == '__main__':
     
     class_index_dict_file = '../data/%s/class_dict.json'%course
     
-    if method == 'NP':
-        extractPhraseFromSyntax(extractiondir, annotation.anotators)
-        train_leave_one_lecture_out_NP('all')
-          
-    elif method == 'annotator1':
-        extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 0, empty)   
-    elif method == 'annotator2':
-        extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 1, empty)
-    elif method == 'union':
-        extractPhraseFeatureFromUnion(extractiondir, annotation.anotators, empty)
-    elif method == 'intersect':
-        extractPhraseFeatureFromIntersect(extractiondir, annotation.anotators, empty)
-    elif method == 'combine':
-        extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
-    print "done"
+#     if method == 'NP':
+#         extractPhraseFromSyntax(extractiondir, annotation.anotators)
+#         train_leave_one_lecture_out_NP('all')
+#           
+#     elif method == 'annotator1':
+#         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 0, empty)   
+#     elif method == 'annotator2':
+#         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 1, empty)
+#     elif method == 'union':
+#         extractPhraseFeatureFromUnion(extractiondir, annotation.anotators, empty)
+#     elif method == 'intersect':
+#         extractPhraseFeatureFromIntersect(extractiondir, annotation.anotators, empty)
+#     elif method == 'combine':
+#         extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
+#     print "done"
      
     if method != 'NP':
         train_leave_one_lecture_out('all')
 # 
-#     train_on_course('IE256_2016','all')
+#     train_on_course('IE256','all')
 #     
-#     test_cross_course('all')
+#     test_cross_course('IE256', 'all')

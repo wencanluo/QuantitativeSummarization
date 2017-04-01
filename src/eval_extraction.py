@@ -5,8 +5,8 @@ import sys
 
 if __name__ == '__main__':
     
-    course = sys.argv[1]
-    #course = "IE256"
+    #course = sys.argv[1]
+    course = "CS0445"
     
     class_index_dict_file = '../data/%s/class_dict.json'%course
     
@@ -31,6 +31,9 @@ if __name__ == '__main__':
                 #row = [system, eval.dict['overall_accuracy']['value'], eval.dict['overall_mention_precision']['value'],eval.dict['overall_mention_recall']['value'], eval.dict['overall_mention_F_measure']]
                 row = [system, test, eval.dict[test]['mention_precision']['value'],eval.dict[test]['mention_recall']['value'], eval.dict[test]['mention_F_measure']]
                 body.append(row)
+            
+            eval.get_sentence_label_accuracy()
+            print 'accuracy:%.4f (%d/%d)' % (eval.dict['sentence_accuracy']['value'], eval.dict['sentence_accuracy']['correct'], eval.dict['sentence_accuracy']['total'])
             
             #print 'accuracy:%.4f\tprecision:%.4f\trecall:%.4f\tF-measure:%.4f'%(eval.dict['overall_accuracy']['value'], eval.dict['overall_mention_precision']['value'],eval.dict['overall_mention_recall']['value'], eval.dict['overall_mention_F_measure'])
     

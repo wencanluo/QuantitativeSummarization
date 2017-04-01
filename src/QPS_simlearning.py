@@ -408,11 +408,11 @@ def train_leave_one_lecture_out_svm(model_dir, name='simlearn_cv'):
     allfeatures = sorted(sim_extractor.features.keys())
     
     #for k in range(len(allfeatures)+1):
-    #k = len(allfeatures)
-    #if True:
+    k = len(allfeatures)
+    if True:
     
-    for k in range(len(allfeatures)):
-        if allfeatures[k] != 'optimumComparerLSATasa': continue
+    #for k in range(len(allfeatures)):
+        #if allfeatures[k] != 'optimumComparerLSATasa': continue
 
         if k == len(allfeatures):#use all features
             features = allfeatures
