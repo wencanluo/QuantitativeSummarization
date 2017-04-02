@@ -726,21 +726,21 @@ if __name__ == '__main__':
     
     class_index_dict_file = '../data/%s/class_dict.json'%course
     
-#     if method == 'NP':
-#         extractPhraseFromSyntax(extractiondir, annotation.anotators)
-#         train_leave_one_lecture_out_NP('all')
-#           
-#     elif method == 'annotator1':
-#         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 0, empty)   
-#     elif method == 'annotator2':
-#         extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 1, empty)
-#     elif method == 'union':
-#         extractPhraseFeatureFromUnion(extractiondir, annotation.anotators, empty)
-#     elif method == 'intersect':
-#         extractPhraseFeatureFromIntersect(extractiondir, annotation.anotators, empty)
-#     elif method == 'combine':
-#         extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
-#     print "done"
+    if method == 'NP':
+        extractPhraseFromSyntax(extractiondir, annotation.anotators)
+        train_leave_one_lecture_out_NP('all')
+            
+    elif method == 'annotator1':
+        extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 0, empty)   
+    elif method == 'annotator2':
+        extractPhraseFeatureFromAnnotation(extractiondir, annotation.anotators, 1, empty)
+    elif method == 'union':
+        extractPhraseFeatureFromUnion(extractiondir, annotation.anotators, empty)
+    elif method == 'intersect':
+        extractPhraseFeatureFromIntersect(extractiondir, annotation.anotators, empty)
+    elif method == 'combine':
+        extractPhraseFeatureFromCombine(extractiondir, annotation.anotators, empty)
+    print "done"
      
     if method != 'NP':
         train_leave_one_lecture_out('all')

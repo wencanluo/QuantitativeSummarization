@@ -602,22 +602,22 @@ if __name__ == '__main__':
 #     
 #     exit(-1)
     
-    course = global_params.g_cid
-    
+#     course = global_params.g_cid
+#     
 #     system = 'QPS_combine'
 #     method = 'crf'
 #     model_dir = "../data/"+course+"/simlearning/svm/"
-#     train_IE256_svm('IE256_2016', model_dir)
-#      
+#     train_IE256_svm('IE256', model_dir)
+#       
 #     phrasedir = "../data/"+course+"/"+system+"/phrase/"
 #     predict_IE256(model_dir, phrasedir, modelname='svm')
 #     exit(-1)  
     
     #Step2: train the model
-    model_dir = "../data/"+course+"/simlearning/svm/"
-    fio.NewPath(model_dir)
-    train_leave_one_lecture_out_svm(model_dir)
-    exit(-1)
+#     model_dir = "../data/"+course+"/simlearning/svm/"
+#     fio.NewPath(model_dir)
+#     train_leave_one_lecture_out_svm(model_dir)
+#     exit(-1)
 
 #       
 # # #     model_dir = "../data/"+course+"/simlearning/"
@@ -633,29 +633,29 @@ if __name__ == '__main__':
 #     #print getSennaPSGtags("I think the main topic of this course is interesting".split())
 
     #Step3: extract features
-    for system, method in [
-#                             ('QPS_NP', 'syntax'),
-#                             ('QPS_NP', 'crf'),
-#                             ('QPS_A1', 'crf'),
-#                             ('QPS_A2', 'crf'),
-#                             ('QPS_union', 'crf'),
-#                             ('QPS_intersect', 'crf'),
-                            ('QPS_combine', 'crf'),
-                           ]:
-        phrasedir = "../data/"+course+"/"+system+"/phrase/"
-                  
-        extractPhrasePaireFeature(phrasedir)
-           
-        model_dir = "../data/"+course+"/simlearning/svm"
-        fio.NewPath(model_dir)
-           
-        predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svm')
-            
-#         model_dir = "../data/"+course+"/simlearning/"
-#         predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svr')
-            
-# #           
-    exit(-1)
+#     for system, method in [
+# #                             ('QPS_NP', 'syntax'),
+# #                             ('QPS_NP', 'crf'),
+# #                             ('QPS_A1', 'crf'),
+# #                             ('QPS_A2', 'crf'),
+# #                             ('QPS_union', 'crf'),
+# #                             ('QPS_intersect', 'crf'),
+#                             ('QPS_combine', 'crf'),
+#                            ]:
+#         phrasedir = "../data/"+course+"/"+system+"/phrase/"
+#                   
+#         extractPhrasePaireFeature(phrasedir)
+#            
+#         model_dir = "../data/"+course+"/simlearning/svm"
+#         fio.NewPath(model_dir)
+#            
+#         predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svm')
+#             
+# #         model_dir = "../data/"+course+"/simlearning/"
+# #         predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svr')
+#             
+# # #           
+#     exit(-1)
     
     #Step 1: get sim feature for oracle 1, and oracle 2
     debug = False
