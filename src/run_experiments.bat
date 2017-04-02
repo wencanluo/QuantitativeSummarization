@@ -6,7 +6,7 @@ rem python word2vec_wrapper.py
 rem python QPS_prepare.py IE256 25 oracle_annotator_1 annotator1
 rem python QPS_prepare.py IE256 25 oracle_annotator_2 annotator2
 rem runLSA_All.bat IE256 25 oracle_annotator_1 annotator1
-rem runLSA_All.bat IE256 25 oracle_annotator_2 annotator2
+runLSA_All.bat IE256 25 oracle_annotator_2 annotator2
 
 rem python word2vec_wrapper.py 
 rem python QPS_prepare.py IE256_2016 26 oracle_annotator_1 annotator1
