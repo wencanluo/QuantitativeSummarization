@@ -33,8 +33,6 @@ from OSLOM_wrapper import OSLOM
 sim_exe = '.feature.sim'
 net_exe = '.net.dat'
 
-
-
 def writegraph_leave_one_lecture_out_lsa(model_dir, phrasedir, modelname='lsa'):    
     lectures = annotation.Lectures
     
@@ -48,7 +46,10 @@ def writegraph_leave_one_lecture_out_lsa(model_dir, phrasedir, modelname='lsa'):
             phrasefile = os.path.join(path, "%s.%s.key"%(q, method))
             phrases = fio.LoadList(phrasefile)
             
-            similarties_results = os.path.join(path, "%s.%s.optimumComparerLSATasa"%(q, method))
+            if modelname == 'lsa':
+                similarties_results = os.path.join(path, "%s.%s.optimumComparerLSATasa"%(q, method))
+            elif modelname == 'svm':
+                similarties_results = os.path.join(path, "%s.%s.svm"%(q, method))
             
             simhead, simbody = fio.ReadMatrix(similarties_results, hasHead=True)
             
@@ -226,19 +227,18 @@ if __name__ == '__main__':
     
     if oslom_parms == '0':
         oslom_parms = ''
-    elif oslom_parms == '1': #default
-        oslom_parms = '-t 1.0 -singlet -r 30'# -cp 0.1
-        #oslom_parms = '-t 1.0 -seed 0 -singlet -r 30'# -cp 0.1
+    elif oslom_parms == '1':
+        #oslom_parms = '-t 1.0 -singlet -r 30'# -cp 0.1
+        oslom_parms = '-t 1.0 -seed 0 -singlet -r 30'# -cp 0.1
         #oslom_parms = '-t 1.0'# -cp 0.1
     elif oslom_parms == '2':
         oslom_parms = '-t 0.9 -infomap 3'# -cp 0.1
     elif oslom_parms == '3':
         oslom_parms = '-t 0.9 -infomap 3 -copra 2'# -cp 0.1
-    elif oslom_parms == '4':
+    elif oslom_parms == '4': #default
         oslom_parms = '-t 1.0 -r 30 -infomap 5 -copra 5'# -cp 0.1
-        #oslom_parms = '-t 1.0 -r 30 -copra 5'# -cp 0.1
     
-    for modelname in ['svm']:#'svm', 'svr',
+    for modelname in ['svm', 'lsa']:#'svm', 'svr',
     #for modelname in ['lsa']:#'svm', 'svr',  
     #for modelname in ['svr', 'svm']:    #'svm', 
         for system, method in [
@@ -253,16 +253,11 @@ if __name__ == '__main__':
             
             #extractPhrasePaireFeature(phrasedir)
             
-            if modelname=='svr':
-                model_dir = "../data/"+course+"/simlearning/"
-            else:
-                model_dir = "../data/"+course+"/simlearning/svm/"
+            model_dir = "../data/"+course+"/simlearning/svm/"
              
-#             if modelname == 'lsa': #use the lsa model for predicting the similarity
-#                 writegraph_leave_one_lecture_out_lsa(model_dir, phrasedir, modelname=modelname)
-#             else:
-#                 writegraph_leave_one_lecture_out(model_dir, phrasedir, modelname=modelname)
+            writegraph_leave_one_lecture_out_lsa(model_dir, phrasedir, modelname=modelname)
                  
-            solvegraph_leave_one_lecture_out(phrasedir, modelname=modelname)
-            readgraph_leave_one_lecture_out(phrasedir, modelname=modelname)
+#             solvegraph_leave_one_lecture_out(phrasedir, modelname=modelname)
+# #             
+#             readgraph_leave_one_lecture_out(phrasedir, modelname=modelname)
         

@@ -1,4 +1,7 @@
 #https://github.com/dgrtwo/ParsePy
+import os
+os.environ["PARSE_API_ROOT"] = "https://coursemirror.azurewebsites.net/parse"
+
 from parse_rest.connection import register
 import parse_rest
 
@@ -14,8 +17,6 @@ import global_params
 
 TypeMap = {"q1":'q1_summaries', "q2":'q2_summaries', "q3":'q3_summaries', "q4":'q4_summaries'}
 TypeMapReverse = {"q1_summaries":'Point of Interest', "q2_summaries":'Muddiest Point', "q3_summaries":'Learning Point'}
-
-from parse_rest.user import User
 
 class CourseMIRROR:
     def __init__(self, app_id, api_key, master_key, config=None, system=None, method=None, similarity=None):
@@ -199,12 +200,16 @@ class CourseMIRROR:
         cmd = "python CourseMirror_ClusterARank.py %s %d %s %s %s" %(cid, max_lecture, self.system, self.method, self.similarity)
         print cmd
         os.system(cmd)
-                   
+                    
         cmd = "python get_summary.py %s %s" % (cid, self.system)
         print cmd
         os.system(cmd)
                  
         cmd = "python get_Rouge.py %s %d %s %s" % (cid, max_lecture, self.system, self.method + '_' + self.similarity)
+        print cmd
+        os.system(cmd)
+        
+        cmd = "python eval_student_number.py %s %d %s %s %s" % (cid, max_lecture, self.system, self.method, self.similarity)
         print cmd
         os.system(cmd)
 
@@ -221,7 +226,7 @@ def gather_rouge(output):
                'rouge_crf_ct.svm.default',
                #'rouge_crf_svm', 
                #'rouge_crf_svr', 
-               #'rouge_crf_ct.svm.default', 
+               'rouge_crf_ct.svm.default', 
                #'rouge_crf_ct.svr.default', 
                ]
     
@@ -285,7 +290,7 @@ if __name__ == '__main__':
 #                                         ('QPS_NP', 'crf', 'optimumComparerLSATasa'),
 #                                         ('QPS_union', 'crf', 'optimumComparerLSATasa'),
 #                                         ('QPS_intersect', 'crf', 'optimumComparerLSATasa'),
-#                                         ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
+                                        ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
  
 #                                         ('QPS_A1_N', 'crf', 'svr'),
 #                                         ('QPS_A2_N', 'crf', 'svr'),
@@ -299,15 +304,8 @@ if __name__ == '__main__':
 #                                         #('QPS_NP', 'syntax', 'svm'),
 #                                         ('QPS_union', 'crf', 'svm'),
 #                                         ('QPS_intersect', 'crf', 'svm'),
-#                                         ('QPS_combine', 'crf', 'svm'),
+                                        ('QPS_combine', 'crf', 'svm'),
  
-#                                         ('QPS_A1_N', 'crf', 'ct.svr.default'),
-#                                         ('QPS_A2_N', 'crf', 'ct.svr.default'),
-#                                         #('QPS_NP', 'syntax', 'ct.svr.default'),
-#                                         ('QPS_union', 'crf', 'ct.svr.default'),
-#                                         ('QPS_intersect', 'crf', 'ct.svr.default'),
-#                                         ('QPS_combine', 'crf', 'ct.svr.default'),
-# #                                           
 #                                         ('QPS_A1_N', 'crf', 'ct.svm.default'),
 #                                         ('QPS_A2_N', 'crf', 'ct.svm.default'),
 #                                         ('QPS_NP', 'syntax', 'ct.svm.default'),

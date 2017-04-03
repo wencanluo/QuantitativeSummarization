@@ -144,7 +144,8 @@ if __name__ == '__main__':
         extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[0:1], 0)        
     elif method == 'annotator2':
         extractPhrasePaireFromAnnotation(phrasedir, annotation.anotators[-1:], 1)
-      
+    elif method == 'crf':
+        extractPhrasePaireFeature(phrasedir)
      
 #     correlation_analysis_noduplicate()
 #     model_dir = "../data/"+course+"/simlearning/"

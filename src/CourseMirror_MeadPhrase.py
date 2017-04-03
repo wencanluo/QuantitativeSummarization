@@ -6,6 +6,7 @@ import os
 import phraseClusteringKmedoid
 import SennaParser
 import CourseMirror_Survey
+import subprocess
 
 def WriteDocsent(excelfile, folder, phrasedir, np=None):
     sheets = range(0,maxWeek)
@@ -97,9 +98,13 @@ if __name__ == '__main__':
     phrasedir = "../data/"+course+"/"+system+"/phrase/"
     datadir = "../data/"+course+ '/'+system+'/' + "PhraseMead/"
     
-    fio.DeleteFolder(datadir)
-    Write2Mead(excelfile, datadir, phrasedir, np=method)
-            
+#     fio.DeleteFolder(datadir)
+#     Write2Mead(excelfile, datadir, phrasedir, np=method)
+#             
     #Step5: get PhraseMead output
-    
+    meaddir = '../../mead/bin/'
+    cmd = './get_phrasemead_qps.sh %s %d %s'%(course, maxWeek, system)
+    os.chdir(meaddir)
+    retcode = subprocess.call([cmd], shell=True)
+    print retcode
     print "done"

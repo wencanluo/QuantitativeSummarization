@@ -123,8 +123,9 @@ class EvalStudent:
         
         except Exception as e:
             print e
-            print total_p, total_r
             print self.key_prefix
+            print total_p, total_r
+            
             
         return list(ave) 
 
@@ -156,13 +157,14 @@ def evaluate_student_number(phrasedir, summarydir, output):
     fio.WriteMatrix(output, body, head)
 
 if __name__ == '__main__':
-    debug = True
+    debug = False
     
     if not debug:
         course = sys.argv[1]
         maxWeek = int(sys.argv[2])
         system = sys.argv[3]
         method = sys.argv[4]
+        similarity = sys.argv[5]
     else:
 #         course = 'IE256_2016'
         course = global_params.g_cid
@@ -170,10 +172,11 @@ if __name__ == '__main__':
         system = 'QPS_combine'
 #         system = 'QPS_NP'
         method = 'crf'
+        similarity = 'ct.svm.default'
     
     phrasedir = "../data/"+course+"/"+system+"/phrase/"
     summarydir = "../data/"+course+"/"+system+ '/ClusterARank/'
     
-    output =  os.path.join("../data/"+course+"/"+system, 'eva_student_%s.txt'%method)
+    output =  os.path.join("../data/"+course+"/"+system, 'eva_student_%s_%s.txt'%(method, similarity))
     
     evaluate_student_number(phrasedir, summarydir, output)

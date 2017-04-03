@@ -1,5 +1,5 @@
 tmpdir=../data/tmp
-meadir=../../Fall2014/summarization/mead/bin
+meadir=../../mead/bin
 rm $tmpdir/*.csv
 $meadir/evaluation/rouge/rouge.pl $tmpdir/model.txt $tmpdir/ref1.txt $tmpdir/ref2.txt > $tmpdir/out.txt
 $meadir/rouge2csv.pl $tmpdir/out.txt $tmpdir/out
