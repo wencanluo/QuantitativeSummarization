@@ -236,6 +236,7 @@ def extractPhraseFromAnnotation(phrasedir, annotator, summarydir=None):
             cluster_output = path + prompt + '.cluster.kmedoids.sqrt.oracle.%s'%method
             
             if summarydir:
+                fio.NewPath(os.path.join(summarydir, str(lec)))
                 summary_file = os.path.join(summarydir, str(lec), '%s.summary'%prompt)
             
             body = []   
@@ -407,7 +408,7 @@ if __name__ == '__main__':
     phrasedir = "../data/"+course+"/"+system+"/phrase/"
     fio.NewPath(phrasedir)
     
-    summarydir = None #"../data/"+course+"/"+system+"/ClusterARank/"
+    summarydir = "../data/"+course+"/"+system+"/ClusterARank/"
     if summarydir:
         fio.NewPath(summarydir)
 

@@ -99,7 +99,7 @@ if __name__ == '__main__':
     datadir = "../data/"+course+ '/'+system+'/' + "PhraseMead/"
     
 #     fio.DeleteFolder(datadir)
-#     Write2Mead(excelfile, datadir, phrasedir, np=method)
+    Write2Mead(excelfile, datadir, phrasedir, np=method)
 #             
     #Step5: get PhraseMead output
     meaddir = '../../mead/bin/'

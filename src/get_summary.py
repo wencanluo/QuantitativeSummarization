@@ -4,7 +4,33 @@ import fio
 import NLTKWrapper
 import numpy
 import sys
+import global_params
 
+def get_phrase_reference_summary_phrase_no(outputs = None):
+    
+    Numbers = []
+    
+    counts = []
+    for doc, lec, annotator in annotation.generate_all_files(annotation.datadir + 'json/', '.json', anotators = annotation.anotators[:1], lectures=annotation.Lectures):
+        print doc
+        
+        task = annotation.Task()
+        task.loadjson(doc)
+        
+        sub_tasks = task.get_tasks()
+        
+        for sub_task in sub_tasks:
+            if sub_task["task_name"] == "Phrase":
+                if sub_task['prompt'] == 0: #POI
+                    type = 'q1'
+                else: 
+                    type = 'q2'
+                
+                student_numbers = [row[2].strip() for row in sub_task["summary"][1:]]
+                Numbers += [int(x) for x in student_numbers]
+                    
+    fio.SaveDict2Json(Numbers, '../data/%s_supporters.txt'%global_params.g_cid)
+        
 def get_phrase_reference_summary_phrase(outputs = None):
     
     for output in outputs:
@@ -51,8 +77,43 @@ def get_phrase_reference_summary_phrase(outputs = None):
         print counts
         print numpy.mean(counts)
         print numpy.median(counts)
+    
+def plot_reference_summary_no_distribution():
+    import collections
+    C = {}
         
+    M = 0
+    for cid in ['Engineer', 'IE256', 'IE256_2016', 'CS0445']:
+        support_file = '../data/%s_supporters.txt'%cid
+        supports = fio.LoadDictJson(support_file)
+        
+        M = max(M, max(supports))
+        C[cid] = collections.Counter(supports)
+    
+    for cid in ['Engineer', 'IE256', 'IE256_2016', 'CS0445']:
+        del C[cid][0]
+        
+    A = {}
+    
+    for i in range(1, M+1):
+        for cid in ['Engineer', 'IE256', 'IE256_2016', 'CS0445']:
+            if cid not in A:
+                A[cid] = collections.defaultdict(float)
+                
+            r = C[cid][i]*1.0/sum(C[cid].values()) if i in C[cid] else 0
+            A[cid][i] += r + A[cid][i-1]
+    
+    for i in range(1, M+1):
+        for cid in ['Engineer', 'IE256', 'IE256_2016', 'CS0445']:
+            print A[cid][i], '\t',
+        print
+         
+    
 if __name__ == '__main__':
+#     get_phrase_reference_summary_phrase_no()
+#     plot_reference_summary_no_distribution()
+#     exit(-1)
+    
     course = sys.argv[1]
     system = sys.argv[2]
     

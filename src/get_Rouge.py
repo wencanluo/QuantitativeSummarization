@@ -13,6 +13,8 @@ RougeHeaderSplit = ['R1-R', 'R1-P', 'R1-F', 'R2-R', 'R2-P', 'R2-F', 'RSU4-R', 'R
 RougeNames = ['ROUGE-1','ROUGE-2', 'ROUGE-SUX']
 
 def getRouge(datadir, maxWeek, output):
+    print datadir
+    
     sheets = range(0, maxWeek)
     
     body = []
@@ -72,9 +74,9 @@ def getRouge(datadir, maxWeek, output):
         
             try:
                 fio.SaveDict2Json(Cache, cachefile)
-            except:
+            except Exception as e:
                 #fio.SaveDict(Cache, cachefile + '.dict')
-                pass
+                print e
         
     header = ['id'] + RougeHeader
     row = ['ave']
@@ -101,9 +103,102 @@ def get_LexRankRouge():
      
     getRouge(datadir, 29, output)
     
+
+def gather_rouge():
     
+    Allbody = []
+    for cid in [
+                'IE256',
+                'IE256_2016',
+                'CS0445',
+                ]:
+                
+        ilpdir = "../data/%s/"%cid
+        baseline_rougefile = os.path.join(ilpdir, 'rouge_np.txt')
+        if not fio.IsExist(baseline_rougefile): continue
+        
+        basehead, basebody = fio.ReadMatrix(baseline_rougefile, hasHead=True)
+        row = [cid, '', 'PhrasSum'] + ['%.3f'%float(x) for x in basebody[-1][1:-3]]
+        Allbody.append(row)
+        
+        for A in ['1',
+                  '2',
+                  ]:
+            
+            for model in ['optimumComparerLSATasa', 
+                          'oracle', 
+                          'oracle_selection']:
+                
+                modeldir = os.path.join(ilpdir, 'oracle_annotator_%s'%A)
+                model_rouge_file = os.path.join(modeldir, 'rouge_annotator%s_%s.txt'%(A, model))
+                head, body = fio.ReadMatrix(model_rouge_file, hasHead=True)
+                
+                if model == 'optimumComparerLSATasa':
+                    basehead1, basebody1 = fio.ReadMatrix(model_rouge_file, hasHead=True)
+                elif model == 'oracle':
+                    basehead2, basebody2 = fio.ReadMatrix(model_rouge_file, hasHead=True)
+                
+                row = [cid, 'A%s'%A, model] + ['%.3f'%float(x) for x in body[-1][1:-3]]
+                
+                print cid, model
+                print model_rouge_file
+                print baseline_rougefile
+                #get p values
+                from stats_util import get_ttest_pvalues
+                pvalues = get_ttest_pvalues(basebody[1:-1], body[1:-1], range(1,len(head)-3))
+                
+                if model == 'optimumComparerLSATasa':
+                    k = 3
+                    for p in pvalues:
+                        if p < 0.05:
+                            row[k] = row[k]+'$^*$'
+                        k+=1
+                elif model == 'oracle':
+                    pvalues1 = get_ttest_pvalues(basebody1[1:-1], body[1:-1], range(1,len(head)-3))
+                    
+                    k = 3
+                    for p1, p2 in zip(pvalues, pvalues1):
+                        if p1 < 0.05 and p2 < 0.05:
+                            row[k] = row[k]+'$^{*\dag}$'
+                        elif p1 < 0.05:
+                            row[k] = row[k]+'$^*$'
+                        elif p2 < 0.05:
+                            row[k] = row[k]+'$^\dag$'
+                        k+=1
+                    
+                elif model == 'oracle_selection':
+                    pvalues1 = get_ttest_pvalues(basebody1[1:-1], body[1:-1], range(1,len(head)-3))
+                    pvalues2 = get_ttest_pvalues(basebody2[1:-1], body[1:-1], range(1,len(head)-3))
+                    
+                    k = 3
+                    for p1, p2, p3 in zip(pvalues, pvalues1, pvalues2):
+                        if p1 >= 0.05 and p2 >= 0.05 and p3>=0.05:
+                            k+=1
+                            continue
+                        
+                        row[k] = row[k]+'$^{'
+                        
+                        if p1 < 0.05:
+                            row[k] = row[k]+'*'
+                        if p2 < 0.05:
+                            row[k] = row[k]+'\dag'
+                            
+                        if p3 < 0.05:
+                            row[k] = row[k]+'\circ'
+                        
+                        row[k] = row[k]+'}$'
+                        k+=1
+                
+                Allbody.append(row)
+
+    output = '../data/rouge_oracle_all_gather.txt'
+    fio.Write2Latex(output, Allbody, [''] + head)
+
+            
 if __name__ == '__main__':
     
+    gather_rouge()
+    exit(-1)
 #     get_LexRankRouge()
 #     exit(-1)
 #     
@@ -116,6 +211,8 @@ if __name__ == '__main__':
     
     datadir = "../data/"+course+"/"+system+ '/ClusterARank/'
     output = '../data/%s/%s/rouge_%s.txt' % (course, system, posfix)
+    
+    print output
     
     getRouge(datadir, maxWeek, output)
                      
