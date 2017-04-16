@@ -170,33 +170,37 @@ class CourseMIRROR:
 #         cmd = 'cmd /C "runSennaCourseMirror.bat '+str(cid)+ ' ' + str(max_lecture) + '"'
 #         os.system(cmd)
 #              
-        cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
-        os.system(cmd)
 #            
-        cmd = 'python QPS_extraction.py %s %d %s %s %s'%(cid, max_lecture, self.system, str(self.method), 'N')
-        os.system(cmd)
-           
-        #     . get PhraseMead input (CourseMirror_MeadPhrase.py)
-        cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
-        print cmd
-        os.system(cmd)
-#                             
-        olddir = os.path.dirname(os.path.realpath(__file__))
-                           
-        #     . get PhraseMead output
-        meaddir = global_params.meaddir
-        cmd = './get_mead_summary_phrase_qps.sh ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system)
-        os.chdir(meaddir)
-        retcode = subprocess.call([cmd], shell=True)
-        print retcode
-        subprocess.call("exit 1", shell=True)
-        os.chdir(olddir)
-               
-        #     . get LSA results (CourseMirrorphrase2phraseSimilarity.java)
-        #cmd = 'cmd /C "runLSA.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
-        #cmd = 'cmd /C "runLSA_All.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
-        #os.system(cmd)
-                 
+#         cmd = 'python QPS_extraction.py %s %d %s %s %s'%(cid, max_lecture, self.system, str(self.method), 'N')
+#         os.system(cmd)
+
+#         cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
+#         os.system(cmd)
+#            
+#         #     . get PhraseMead input (CourseMirror_MeadPhrase.py)
+#         cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
+#         print cmd
+#         os.system(cmd)
+# #                             
+#         olddir = os.path.dirname(os.path.realpath(__file__))
+#                            
+#         #     . get PhraseMead output
+#         meaddir = global_params.meaddir
+#         cmd = './get_mead_summary_phrase_qps.sh ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system)
+#         os.chdir(meaddir)
+#         retcode = subprocess.call([cmd], shell=True)
+#         print retcode
+#         subprocess.call("exit 1", shell=True)
+#         os.chdir(olddir)
+#                
+#         #     . get LSA results (CourseMirrorphrase2phraseSimilarity.java)
+#         #cmd = 'cmd /C "runLSA.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
+#         cmd = 'cmd /C "runLSA_All.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
+#         os.system(cmd)
+        
+        
+        #get community dection results
+        
         # get ClusterARank (CourseMirror_phraseClusteringbasedShallowSummaryKmedoid-New-Malformed-LexRank.py)
         cmd = "python CourseMirror_ClusterARank.py %s %d %s %s %s" %(cid, max_lecture, self.system, self.method, self.similarity)
         print cmd

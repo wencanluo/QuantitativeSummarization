@@ -33,6 +33,9 @@ rem Finished phrase extraction for QPS_NP
 
 rem runLSA_All.bat CS0445 28 QPS_NP syntax
 
+rem python QPS_extraction.py IE256 25 QPS_A1 annotator1 N
+rem python QPS_extraction.py IE256 25 QPS_A2 annotator2 N
+
 rem for wapiti
 rem python QPS_extraction.py IE256_2016 26 QPS_A1 annotator1 N
 rem python QPS_extraction.py CS0445 28 QPS_A1 annotator1 N
@@ -51,6 +54,7 @@ rem python QPS_prepare.py CS0445 28 QPS_combine crf
 rem runLSA_All.bat CS0445 28 QPS_combine crf
 rem python QPS_simlearning_crosscourse
 
+python QPS_simlearning_getfeature.py IE256 25 QPS_combine crf
 rem python QPS_simlearning_getfeature.py IE256_2016 26 QPS_combine crf
 rem python QPS_simlearning_getfeature.py CS0445 28 QPS_combine crf
 rem python QPS_simlearning.py

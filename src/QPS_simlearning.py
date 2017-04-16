@@ -594,15 +594,15 @@ def check_stopword():
 if __name__ == '__main__':
     course = global_params.g_cid
     
-    train_course = 'IE256'
-    system = 'QPS_combine'
-    method = 'crf'
-    model_dir = "../data/"+course+"/simlearning/svm/"
-    fio.NewPath(model_dir)
-    train_IE256_svm(train_course, model_dir)
-       
-    phrasedir = "../data/"+course+"/"+system+"/phrase/"
-    predict_IE256(train_course, model_dir, phrasedir, modelname='svm')
-
-    print "done"
-    
+    for system, method in [
+                            ('QPS_combine', 'crf'),
+                           ]:
+        phrasedir = "../data/"+course+"/"+system+"/phrase/"
+                   
+#         extractPhrasePaireFeature(phrasedir)
+            
+        model_dir = "../data/"+course+"/simlearning/svm"
+        fio.NewPath(model_dir)
+             
+        predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svm')
+            
