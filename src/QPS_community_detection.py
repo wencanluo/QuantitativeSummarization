@@ -222,7 +222,7 @@ def readgraph_leave_one_lecture_out(phrasedir, modelname='svr'):
 if __name__ == '__main__':
     course = global_params.g_cid
     
-    oslom_parms = sys.argv[1]
+    oslom_parms = '1'
     
     if oslom_parms == '0':
         oslom_parms = ''
@@ -262,7 +262,7 @@ if __name__ == '__main__':
 #                 writegraph_leave_one_lecture_out_lsa(model_dir, phrasedir, modelname=modelname)
 #             else:
 #                 writegraph_leave_one_lecture_out(model_dir, phrasedir, modelname=modelname)
-                 
+            
             solvegraph_leave_one_lecture_out(phrasedir, modelname=modelname)
             readgraph_leave_one_lecture_out(phrasedir, modelname=modelname)
         

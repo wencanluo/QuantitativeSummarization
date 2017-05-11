@@ -244,7 +244,7 @@ if __name__ == '__main__':
     for ratio in ["sqrt"]:
         for lex in ['lexrankmax']:
             datadir = "../data/"+course+"/"+system+ '/ClusterARank/'   
-            #fio.DeleteFolder(datadir)
+            fio.NewPath(datadir)
             ShallowSummary(excelfile, datadir, clusterdir, K=5, method = method, similarity=similarity, ratio=ratio, lex=lex)
 
                 #PrintClusterRankSummary(datadir)

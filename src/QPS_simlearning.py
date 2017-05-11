@@ -603,6 +603,7 @@ if __name__ == '__main__':
             
         model_dir = "../data/"+course+"/simlearning/svm"
         fio.NewPath(model_dir)
-             
+        
+        train_leave_one_lecture_out_svm(model_dir)
         predict_leave_one_lecture_out(model_dir, phrasedir, modelname='svm')
             

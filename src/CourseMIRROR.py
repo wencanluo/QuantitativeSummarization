@@ -176,14 +176,14 @@ class CourseMIRROR:
 
 #         cmd = 'python QPS_prepare.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
 #         os.system(cmd)
-#            
-#         #     . get PhraseMead input (CourseMirror_MeadPhrase.py)
+#             
+#       #. get PhraseMead input (CourseMirror_MeadPhrase.py)
 #         cmd = 'python CourseMirror_MeadPhrase.py ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method)
 #         print cmd
 #         os.system(cmd)
 # #                             
 #         olddir = os.path.dirname(os.path.realpath(__file__))
-#                            
+#                               
 #         #     . get PhraseMead output
 #         meaddir = global_params.meaddir
 #         cmd = './get_mead_summary_phrase_qps.sh ' + str(cid) + ' ' +  str(max_lecture) + ' ' + str(self.system)
@@ -192,7 +192,7 @@ class CourseMIRROR:
 #         print retcode
 #         subprocess.call("exit 1", shell=True)
 #         os.chdir(olddir)
-#                
+#                 
 #         #     . get LSA results (CourseMirrorphrase2phraseSimilarity.java)
 #         #cmd = 'cmd /C "runLSA.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
 #         cmd = 'cmd /C "runLSA_All.bat '+str(cid)+ ' ' + str(max_lecture) + ' ' + str(self.system) + ' ' + str(self.method) + '"'
@@ -205,18 +205,18 @@ class CourseMIRROR:
         cmd = "python CourseMirror_ClusterARank.py %s %d %s %s %s" %(cid, max_lecture, self.system, self.method, self.similarity)
         print cmd
         os.system(cmd)
-                    
+                      
         cmd = "python get_summary.py %s %s" % (cid, self.system)
         print cmd
         os.system(cmd)
-#                  
+                    
         cmd = "python get_Rouge.py %s %d %s %s" % (cid, max_lecture, self.system, self.method + '_' + self.similarity)
         print cmd
         os.system(cmd)
         
-#         cmd = "python eval_student_number.py %s %d %s %s %s" % (cid, max_lecture, self.system, self.method, self.similarity)
-#         print cmd
-#         os.system(cmd)
+        cmd = "python eval_student_number.py %s %d %s %s %s" % (cid, max_lecture, self.system, self.method, self.similarity)
+        print cmd
+        os.system(cmd)
 
 def gather_rouge(output):
     datadir = '../data/%s/'%course
@@ -295,7 +295,7 @@ if __name__ == '__main__':
 #                                         ('QPS_NP', 'crf', 'optimumComparerLSATasa'),
 #                                         ('QPS_union', 'crf', 'optimumComparerLSATasa'),
 #                                         ('QPS_intersect', 'crf', 'optimumComparerLSATasa'),
-                                        ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
+                                        
  
 #                                         ('QPS_A1_N', 'crf', 'svr'),
 #                                         ('QPS_A2_N', 'crf', 'svr'),
@@ -309,14 +309,17 @@ if __name__ == '__main__':
 #                                         #('QPS_NP', 'syntax', 'svm'),
 #                                         ('QPS_union', 'crf', 'svm'),
 #                                         ('QPS_intersect', 'crf', 'svm'),
+
+#                                         ('QPS_combine', 'crf', 'optimumComparerLSATasa'),
 #                                         ('QPS_combine', 'crf', 'svm'),
+                                        ('QPS_combine', 'crf', 'ct.svm.default'),
  
 #                                         ('QPS_A1_N', 'crf', 'ct.svm.default'),
 #                                         ('QPS_A2_N', 'crf', 'ct.svm.default'),
 #                                         ('QPS_NP', 'syntax', 'ct.svm.default'),
 #                                         ('QPS_union', 'crf', 'ct.svm.default'),
 #                                         ('QPS_intersect', 'crf', 'ct.svm.default'),
-#                                         ('QPS_combine', 'crf', 'ct.svm.default'),
+
 #
 #                                         ('QPS_NP', 'syntax', 'ct.lsa.default'),
                                        ]:

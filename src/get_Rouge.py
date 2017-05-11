@@ -197,8 +197,8 @@ def gather_rouge():
             
 if __name__ == '__main__':
     
-    gather_rouge()
-    exit(-1)
+#     gather_rouge()
+#     exit(-1)
 #     get_LexRankRouge()
 #     exit(-1)
 #     
